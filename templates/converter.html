@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Free Online Image Converter
+    </title>
+
+    <meta
+        name="description"
+        content="Convert images online to JPG, PNG, WEBP, BMP, TIFF and other image formats for free."
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='/style.css') }}"
+    >
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="header-inner">
+
+            <a
+                class="logo"
+                href="/"
+            >
+                Image Tools
+            </a>
+
+            <nav>
+                <a
+                    class="nav-link"
+                    href="/converter"
+                >
+                    Converter
+                </a>
+            </nav>
+
+        </div>
+    </header>
+
+    <main class="page-container">
+
+        <div class="tool-page">
+
+            <a
+                class="back-link"
+                href="/"
+            >
+                ← Back to Home
+            </a>
+
+            <section class="tool-heading">
+
+                <h1>
+                    Image Converter
+                </h1>
+
+                <p>
+                    Upload an image, choose the output
+                    format and download the converted file.
+                </p>
+
+            </section>
+
+            <section class="converter-box">
+                {% if error_message %}
+
+                    <div class="error-message">
+                        {{ error_message }}
+                    </div>
+
+                {% endif %}
+                <form
+                    action="/convert"
+                    method="post"
+                    enctype="multipart/form-data"
+                >
+
+                    <div class="form-group">
+
+                        <label for="image">
+                            Choose image
+                        </label>
+
+                        <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            accept="image/*"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="target_format">
+                            Convert to
+                        </label>
+
+                        <select
+                            id="target_format"
+                            name="target_format"
+                            required
+                        >
+
+                            {% for format in formats %}
+
+                                <option value="{{ format }}">
+                                    {{ format }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <button
+                        class="primary-button"
+                        type="submit"
+                    >
+                        Convert Image
+                    </button>
+
+                </form>
+
+            </section>
+
+            <section class="info-section">
+
+                <h2>
+                    Easy Image Conversion
+                </h2>
+
+                <p>
+                    Choose an image from your device,
+                    select the format you need and
+                    download the converted image.
+                </p>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+
+            <p>
+                © Image Tools
+            </p>
+
+        </div>
+    </footer>
+
+</body>
+
+</html>
