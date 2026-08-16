@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        Image Tools
+        {% endblock %}
+    </title>
+
+    <meta
+        name="description"
+        content="{% block description %}Free online image tools for converting, resizing and editing images quickly and easily.{% endblock %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='/style.css') }}"
+    >
+
+
+    <!-- Google tag (gtag.js) -->
+    <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-BB82FXB59E"
+    ></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag(
+            'config',
+            'G-BB82FXB59E'
+        );
+    </script>
+
+
+    {% block extra_head %}
+    {% endblock %}
+
+</head>
+
+
+<body>
+
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <a
+                class="logo"
+                href="/"
+            >
+                Image Tools
+            </a>
+
+
+            <nav class="main-nav">
+
+                <a
+                    class="nav-link"
+                    href="/"
+                >
+                    Home
+                </a>
+
+                <a
+                    class="nav-link"
+                    href="/converter"
+                >
+                    Converter
+                </a>
+
+                <a
+                    class="nav-link"
+                    href="/resize"
+                >
+                    Resizer
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    {% block content %}
+    {% endblock %}
+
+
+    <footer class="site-footer">
+
+        <div class="footer-inner">
+
+            <div class="footer-brand">
+
+                <a
+                    class="footer-logo"
+                    href="/"
+                >
+                    Image Tools
+                </a>
+
+                <p>
+                    Simple online tools
+                    for your images.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="/about">
+                    About
+                </a>
+
+                <a href="/privacy">
+                    Privacy Policy
+                </a>
+
+                <a href="/terms">
+                    Terms
+                </a>
+
+                <a href="/contact">
+                    Contact
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 Image Tools.
+                All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    {% block extra_scripts %}
+    {% endblock %}
+
+</body>
+
+</html>

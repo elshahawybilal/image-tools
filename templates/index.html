@@ -1,129 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+{% block title %}
+Free Online Image Tools
+{% endblock %}
+
+
+{% block description %}
+Free online image tools for converting, resizing and editing images quickly and easily.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <section class="hero">
+
+        <span class="hero-badge">
+            Free Image Tools
+        </span>
+
+        <h1>
+            Simple Online Tools
+            for Your Images
+        </h1>
+
+        <p>
+            Convert and resize your images
+            quickly from your browser.
+            No complicated software required.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
     >
+        <span>
+            Advertisement
+        </span>
+    </section>
 
-    <title>Free Online Image Tools</title>
 
-    <meta
-        name="description"
-        content="Free online image tools for converting, resizing and editing images quickly and easily."
-    >
+    <section class="section-heading">
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', path='/style.css') }}"
-    >
-</head>
+        <h2>
+            Image Tools
+        </h2>
 
-<body>
+        <p>
+            Choose the tool you need.
+        </p>
 
-    <header class="site-header">
-        <div class="header-inner">
+    </section>
+
+
+    <section class="tools-grid">
+
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                ↔
+            </div>
+
+            <h2>
+                Image Converter
+            </h2>
+
+            <p>
+                Convert images between JPG,
+                PNG, WEBP, BMP, TIFF and
+                other supported formats.
+            </p>
 
             <a
-                class="logo"
-                href="/"
+                class="primary-button"
+                href="/converter"
             >
-                Image Tools
+                Open Converter
             </a>
 
-            <nav>
-                <a
-                    class="nav-link"
-                    href="/converter"
-                >
-                    Converter
-                </a>
+        </article>
 
-                <a
-                    class="nav-link"
-                    href="/resize"
-                >
-                    Resizer
-                </a>
-            </nav>
 
-        </div>
-    </header>
+        <article class="tool-card">
 
-    <main class="page-container">
+            <div class="tool-icon">
+                ↗
+            </div>
 
-        <section class="hero">
-
-            <h1>
-                Free Online Image Tools
-            </h1>
+            <h2>
+                Image Resizer
+            </h2>
 
             <p>
-                Simple tools to convert and edit
-                your images directly from your browser.
+                Change the width and height
+                of your images quickly and
+                download the resized result.
             </p>
 
-        </section>
+            <a
+                class="primary-button"
+                href="/resize"
+            >
+                Open Resizer
+            </a>
 
-        <section class="tools-grid">
+        </article>
 
-            <article class="tool-card">
+    </section>
 
-                <h2>
-                    Image Converter
-                </h2>
 
-                <p>
-                    Convert your images to JPG,
-                    PNG, WEBP, BMP and other formats.
-                </p>
+    <section class="features-section">
 
-                <a
-                    class="primary-button"
-                    href="/converter"
-                >
-                    Open Converter
-                </a>
+        <div class="feature-item">
 
-            </article>
-
-            <article class="tool-card">
-
-                <h2>
-                    Image Resizer
-                </h2>
-
-                <p>
-                    Resize images to the exact
-                    width and height you need.
-                </p>
-
-                <a
-                    class="primary-button"
-                    href="/resize"
-                >
-                    Open Resizer
-                </a>
-
-            </article>
-
-        </section>
-
-    </main>
-
-    <footer class="site-footer">
-        <div class="footer-inner">
+            <h3>
+                Easy to Use
+            </h3>
 
             <p>
-                © Image Tools
+                Upload your image, choose
+                your settings and download
+                the result.
             </p>
 
         </div>
-    </footer>
 
-</body>
 
-</html>
+        <div class="feature-item">
+
+            <h3>
+                Fast Processing
+            </h3>
+
+            <p>
+                Images are processed quickly
+                without complicated steps.
+            </p>
+
+        </div>
+
+
+        <div class="feature-item">
+
+            <h3>
+                Free Tools
+            </h3>
+
+            <p>
+                Use the available image tools
+                directly from your browser.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}

@@ -4,10 +4,21 @@
     padding: 0;
 }
 
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --text-dark: #111827;
+    --text: #374151;
+    --text-light: #6b7280;
+    --border: #e5e7eb;
+    --background: #f5f7fb;
+    --white: #ffffff;
+}
+
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #f5f7fb;
-    color: #1f2937;
+    background: var(--background);
+    color: var(--text);
     line-height: 1.6;
 }
 
@@ -16,111 +27,292 @@ a {
     color: inherit;
 }
 
+
+/* =========================
+   HEADER
+========================= */
+
 .site-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .header-inner {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 18px 20px;
+    padding: 17px 20px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 25px;
 }
 
 .logo {
     font-size: 24px;
-    font-weight: 700;
-    color: #111827;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 26px;
 }
 
 .nav-link {
     color: #4b5563;
     font-weight: 600;
+    transition: color 0.2s ease;
 }
 
 .nav-link:hover {
-    color: #111827;
+    color: var(--primary);
 }
+
+
+/* =========================
+   MAIN
+========================= */
 
 .page-container {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 60px 20px;
+    padding: 55px 20px;
 }
 
+
+/* =========================
+   HERO
+========================= */
+
 .hero {
+    max-width: 800px;
+    margin: 0 auto 45px;
     text-align: center;
-    margin-bottom: 50px;
+}
+
+.hero-badge {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 13px;
+
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .hero h1 {
-    font-size: 42px;
-    margin-bottom: 12px;
-    color: #111827;
+    margin-bottom: 16px;
+
+    color: var(--text-dark);
+    font-size: 46px;
+    line-height: 1.15;
+    letter-spacing: -1px;
 }
 
 .hero p {
     max-width: 650px;
     margin: 0 auto;
+
+    color: var(--text-light);
     font-size: 18px;
-    color: #6b7280;
 }
+
+
+/* =========================
+   ADVERTISEMENT AREAS
+========================= */
+
+.ad-placeholder {
+    width: 100%;
+    min-height: 90px;
+
+    margin: 35px auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+
+    background: #f8fafc;
+    color: #94a3b8;
+
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ad-placeholder-top {
+    max-width: 970px;
+}
+
+.ad-placeholder-bottom {
+    max-width: 970px;
+    margin-top: 55px;
+}
+
+
+/* =========================
+   SECTION HEADING
+========================= */
+
+.section-heading {
+    margin: 55px 0 25px;
+    text-align: center;
+}
+
+.section-heading h2 {
+    margin-bottom: 6px;
+
+    color: var(--text-dark);
+    font-size: 30px;
+}
+
+.section-heading p {
+    color: var(--text-light);
+}
+
+
+/* =========================
+   TOOL CARDS
+========================= */
 
 .tools-grid {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(260px, 1fr)
-    );
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
 }
 
 .tool-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 28px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px;
+
     transition:
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .tool-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px
-        rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    border-color: #dbeafe;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.07);
+}
+
+.tool-icon {
+    width: 48px;
+    height: 48px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #eff6ff;
+    color: var(--primary);
+
+    font-size: 25px;
+    font-weight: 700;
 }
 
 .tool-card h2 {
     margin-bottom: 10px;
+
+    color: var(--text-dark);
     font-size: 24px;
 }
 
 .tool-card p {
-    color: #6b7280;
+    min-height: 78px;
     margin-bottom: 22px;
+
+    color: var(--text-light);
 }
+
+
+/* =========================
+   BUTTONS
+========================= */
 
 .primary-button {
     display: inline-block;
+
     border: none;
     border-radius: 10px;
+
     padding: 12px 20px;
-    background: #2563eb;
-    color: #ffffff;
+
+    background: var(--primary);
+    color: var(--white);
+
     font-size: 16px;
     font-weight: 700;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .primary-button:hover {
-    background: #1d4ed8;
+    background: var(--primary-dark);
+    transform: translateY(-1px);
 }
+
+
+/* =========================
+   FEATURES
+========================= */
+
+.features-section {
+    margin-top: 65px;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.feature-item {
+    padding: 22px;
+
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 14px;
+
+    text-align: center;
+}
+
+.feature-item h3 {
+    margin-bottom: 7px;
+
+    color: var(--text-dark);
+    font-size: 18px;
+}
+
+.feature-item p {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+
+/* =========================
+   TOOL PAGES
+========================= */
 
 .tool-page {
     max-width: 760px;
@@ -128,26 +320,29 @@ a {
 }
 
 .tool-heading {
-    text-align: center;
     margin-bottom: 35px;
+    text-align: center;
 }
 
 .tool-heading h1 {
-    font-size: 36px;
     margin-bottom: 10px;
+
+    color: var(--text-dark);
+    font-size: 36px;
 }
 
 .tool-heading p {
-    color: #6b7280;
+    color: var(--text-light);
 }
 
 .converter-box {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
     padding: 32px;
-    box-shadow: 0 8px 25px
-        rgba(0, 0, 0, 0.05);
+
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 .form-group {
@@ -156,24 +351,30 @@ a {
 
 .form-group label {
     display: block;
+
     margin-bottom: 8px;
+
+    color: var(--text-dark);
     font-weight: 700;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
+
+    padding: 12px;
+
+    background: var(--white);
     border: 1px solid #d1d5db;
     border-radius: 10px;
-    padding: 12px;
+
     font-size: 16px;
-    background: #ffffff;
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: var(--primary);
 }
 
 .converter-box .primary-button {
@@ -182,8 +383,10 @@ a {
 
 .back-link {
     display: inline-block;
+
     margin-bottom: 25px;
-    color: #2563eb;
+
+    color: var(--primary);
     font-weight: 700;
 }
 
@@ -193,53 +396,147 @@ a {
 
 .info-section {
     margin-top: 35px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
     padding: 24px;
+
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
 }
 
 .info-section h2 {
     margin-bottom: 10px;
+    color: var(--text-dark);
 }
 
 .info-section p {
-    color: #6b7280;
+    color: var(--text-light);
 }
 
+.error-message {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+
+    color: #991b1b;
+    font-weight: 600;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
 .site-footer {
-    margin-top: 70px;
-    border-top: 1px solid #e5e7eb;
-    background: #ffffff;
+    margin-top: 60px;
+
+    background: var(--white);
+    border-top: 1px solid var(--border);
 }
 
 .footer-inner {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 25px 20px;
-    text-align: center;
-    color: #6b7280;
+    padding: 40px 20px 30px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 40px;
 }
 
-.coming-soon {
-    opacity: 0.65;
+.footer-brand {
+    max-width: 300px;
 }
+
+.footer-logo {
+    display: inline-block;
+
+    margin-bottom: 8px;
+
+    color: var(--text-dark);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.footer-brand p {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+}
+
+.footer-links a {
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+.footer-bottom {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+
+    border-top: 1px solid #f0f1f3;
+
+    color: #9ca3af;
+    font-size: 13px;
+    text-align: center;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media (max-width: 700px) {
+
     .header-inner {
-        padding: 15px 16px;
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .main-nav {
+        gap: 18px;
     }
 
     .page-container {
-        padding: 40px 16px;
+        padding: 38px 16px;
+    }
+
+    .hero {
+        margin-bottom: 30px;
     }
 
     .hero h1 {
-        font-size: 32px;
+        font-size: 34px;
     }
 
     .hero p {
         font-size: 16px;
+    }
+
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tool-card p {
+        min-height: auto;
+    }
+
+    .features-section {
+        grid-template-columns: 1fr;
     }
 
     .tool-heading h1 {
@@ -249,13 +546,13 @@ a {
     .converter-box {
         padding: 22px;
     }
-}
-.error-message {
-    margin-bottom: 20px;
-    padding: 14px 16px;
-    border: 1px solid #fecaca;
-    border-radius: 10px;
-    background: #fef2f2;
-    color: #991b1b;
-    font-weight: 600;
+
+    .footer-inner {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .footer-links {
+        gap: 15px 20px;
+    }
 }

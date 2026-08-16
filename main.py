@@ -117,25 +117,18 @@ FORMAT_ORDER = [
 
 def check_feature(feature_name):
     try:
-        return bool(
-            features.check(feature_name)
-        )
-
+        return bool(features.check(feature_name))
     except (ValueError, TypeError):
         return False
 
 
 def is_format_available(format_name):
-    details = FORMAT_DETAILS.get(
-        format_name
-    )
+    details = FORMAT_DETAILS.get(format_name)
 
     if details is None:
         return False
 
-    pillow_format = details[
-        "pillow_format"
-    ]
+    pillow_format = details["pillow_format"]
 
     if pillow_format == "WEBP":
         return check_feature("webp")
@@ -190,13 +183,10 @@ def prepare_image(
             image.mode in ("RGBA", "LA")
             or (
                 image.mode == "P"
-                and "transparency"
-                in image.info
+                and "transparency" in image.info
             )
         ):
-            return add_white_background(
-                image
-            )
+            return add_white_background(image)
 
         return image.convert("RGB")
 
@@ -376,6 +366,70 @@ def home(request: Request):
 
 
 @app.get(
+    "/about",
+    response_class=HTMLResponse,
+)
+def about_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="about.html",
+        context={
+            "page_title": "About Image Tools",
+        },
+    )
+
+
+@app.get(
+    "/privacy",
+    response_class=HTMLResponse,
+)
+def privacy_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="privacy.html",
+        context={
+            "page_title": "Privacy Policy",
+        },
+    )
+
+
+@app.get(
+    "/terms",
+    response_class=HTMLResponse,
+)
+def terms_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="terms.html",
+        context={
+            "page_title": "Terms of Use",
+        },
+    )
+
+
+@app.get(
+    "/contact",
+    response_class=HTMLResponse,
+)
+def contact_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="contact.html",
+        context={
+            "page_title": "Contact",
+        },
+    )
+
+
+@app.get(
     "/converter",
     response_class=HTMLResponse,
 )
@@ -463,13 +517,11 @@ async def convert_image(
         with Image.open(
             io.BytesIO(file_data)
         ) as source_image:
-
             source_image.verify()
 
         with Image.open(
             io.BytesIO(file_data)
         ) as source_image:
-
             source_image.seek(0)
             source_image.load()
 
@@ -596,13 +648,11 @@ async def resize_image(
         with Image.open(
             io.BytesIO(file_data)
         ) as source_image:
-
             source_image.verify()
 
         with Image.open(
             io.BytesIO(file_data)
         ) as source_image:
-
             source_image.load()
 
             original_format = (
