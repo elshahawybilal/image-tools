@@ -138,14 +138,10 @@ def is_format_available(format_name):
     ]
 
     if pillow_format == "WEBP":
-        return check_feature(
-            "webp"
-        )
+        return check_feature("webp")
 
     if pillow_format == "JPEG2000":
-        return check_feature(
-            "jpg_2000"
-        )
+        return check_feature("jpg_2000")
 
     Image.init()
 
@@ -164,9 +160,7 @@ def get_available_formats():
 
 
 def add_white_background(image):
-    rgba_image = image.convert(
-        "RGBA"
-    )
+    rgba_image = image.convert("RGBA")
 
     background = Image.new(
         "RGB",
@@ -176,9 +170,7 @@ def add_white_background(image):
 
     background.paste(
         rgba_image,
-        mask=rgba_image.getchannel(
-            "A"
-        ),
+        mask=rgba_image.getchannel("A"),
     )
 
     rgba_image.close()
@@ -241,9 +233,7 @@ def prepare_image(
             return image.copy()
 
         if "A" in image.getbands():
-            return image.convert(
-                "RGBA"
-            )
+            return image.convert("RGBA")
 
         return image.convert("RGB")
 
@@ -259,9 +249,7 @@ def prepare_image(
             return image.copy()
 
         if "A" in image.getbands():
-            return image.convert(
-                "RGBA"
-            )
+            return image.convert("RGBA")
 
         return image.convert("RGB")
 
@@ -279,9 +267,7 @@ def prepare_image(
             return image.copy()
 
         if "A" in image.getbands():
-            return image.convert(
-                "RGBA"
-            )
+            return image.convert("RGBA")
 
         return image.convert("RGB")
 
@@ -338,9 +324,7 @@ def clean_file_name(file_name):
         name_without_extension,
     )
 
-    cleaned_name = cleaned_name.strip(
-        "_"
-    )
+    cleaned_name = cleaned_name.strip("_")
 
     if not cleaned_name:
         cleaned_name = "image"
@@ -358,6 +342,20 @@ def converter_template(
         context={
             "page_title": "Image Converter",
             "formats": get_available_formats(),
+            "error_message": error_message,
+        },
+    )
+
+
+def resize_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="resize.html",
+        context={
+            "page_title": "Image Resizer",
             "error_message": error_message,
         },
     )
@@ -385,6 +383,18 @@ def converter_page(
     request: Request,
 ):
     return converter_template(
+        request=request
+    )
+
+
+@app.get(
+    "/resize",
+    response_class=HTMLResponse,
+)
+def resize_page(
+    request: Request,
+):
+    return resize_template(
         request=request
     )
 
@@ -463,11 +473,9 @@ async def convert_image(
             source_image.seek(0)
             source_image.load()
 
-            converted_image = (
-                prepare_image(
-                    source_image,
-                    target_format,
-                )
+            converted_image = prepare_image(
+                source_image,
+                target_format,
             )
 
             try:
@@ -529,5 +537,174 @@ async def convert_image(
         media_type=format_details[
             "media_type"
         ],
+        headers=headers,
+    )
+
+
+@app.post(
+    "/resize",
+    response_class=HTMLResponse,
+)
+async def resize_image(
+    request: Request,
+    image: UploadFile = File(...),
+    width: int = Form(...),
+    height: int = Form(...),
+):
+    if width <= 0 or height <= 0:
+        return resize_template(
+            request=request,
+            error_message=(
+                "Width and height must "
+                "be greater than zero."
+            ),
+        )
+
+    if width > 10000 or height > 10000:
+        return resize_template(
+            request=request,
+            error_message=(
+                "Maximum width and height "
+                "are 10000 pixels."
+            ),
+        )
+
+    file_data = await image.read(
+        MAX_FILE_SIZE + 1
+    )
+
+    if not file_data:
+        return resize_template(
+            request=request,
+            error_message=(
+                "Please choose an image."
+            ),
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return resize_template(
+            request=request,
+            error_message=(
+                "The image is too large. "
+                "Maximum file size is 20 MB."
+            ),
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+
+            source_image.verify()
+
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+
+            source_image.load()
+
+            original_format = (
+                source_image.format or "PNG"
+            )
+
+            resized_image = source_image.resize(
+                (width, height),
+                Image.Resampling.LANCZOS,
+            )
+
+            if original_format == "JPEG":
+                final_image = prepare_image(
+                    resized_image,
+                    "JPG",
+                )
+
+                extension = "jpg"
+                media_type = "image/jpeg"
+                save_format = "JPEG"
+                save_options = get_save_options(
+                    "JPG"
+                )
+
+            elif original_format == "WEBP":
+                final_image = prepare_image(
+                    resized_image,
+                    "WEBP",
+                )
+
+                extension = "webp"
+                media_type = "image/webp"
+                save_format = "WEBP"
+                save_options = get_save_options(
+                    "WEBP"
+                )
+
+            else:
+                final_image = prepare_image(
+                    resized_image,
+                    "PNG",
+                )
+
+                extension = "png"
+                media_type = "image/png"
+                save_format = "PNG"
+                save_options = get_save_options(
+                    "PNG"
+                )
+
+            try:
+                final_image.save(
+                    output_buffer,
+                    format=save_format,
+                    **save_options,
+                )
+
+            finally:
+                final_image.close()
+                resized_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+
+        return resize_template(
+            request=request,
+            error_message=(
+                "The selected file is not "
+                "a valid image."
+            ),
+        )
+
+    except Exception:
+        output_buffer.close()
+
+        return resize_template(
+            request=request,
+            error_message=(
+                "The image could not be resized."
+            ),
+        )
+
+    output_buffer.seek(0)
+
+    safe_name = clean_file_name(
+        image.filename
+    )
+
+    download_name = (
+        f"{safe_name}_resized."
+        f"{extension}"
+    )
+
+    headers = {
+        "Content-Disposition": (
+            "attachment; "
+            f'filename="{download_name}"'
+        )
+    }
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
         headers=headers,
     )
