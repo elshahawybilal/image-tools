@@ -404,12 +404,46 @@ a {
 }
 
 .info-section h2 {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+
     color: var(--text-dark);
+    font-size: 24px;
+}
+
+.info-section h3 {
+    margin-top: 24px;
+    margin-bottom: 8px;
+
+    color: var(--text-dark);
+    font-size: 19px;
 }
 
 .info-section p {
     color: var(--text-light);
+}
+
+.info-section p + p {
+    margin-top: 12px;
+}
+
+.info-section ol,
+.info-section ul {
+    margin-top: 14px;
+    padding-left: 24px;
+}
+
+.info-section li {
+    margin-bottom: 10px;
+    color: var(--text-light);
+}
+
+.info-section a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.info-section a:hover {
+    text-decoration: underline;
 }
 
 .error-message {
@@ -545,6 +579,18 @@ a {
 
     .converter-box {
         padding: 22px;
+    }
+
+    .info-section {
+        padding: 20px;
+    }
+
+    .info-section h2 {
+        font-size: 22px;
+    }
+
+    .info-section h3 {
+        font-size: 18px;
     }
 
     .footer-inner {
