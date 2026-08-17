@@ -3,7 +3,7 @@ import os
 import re
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image, UnidentifiedImageError, features
@@ -348,6 +348,60 @@ def resize_template(
             "page_title": "Image Resizer",
             "error_message": error_message,
         },
+    )
+
+
+@app.get(
+    "/sitemap.xml",
+    include_in_schema=False,
+)
+def sitemap():
+    sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://imagekitbox.com/</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/converter</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/resize</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/about</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/privacy</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/terms</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/contact</loc>
+    </url>
+</urlset>
+"""
+
+    return Response(
+        content=sitemap_content,
+        media_type="application/xml",
+    )
+
+
+@app.get(
+    "/robots.txt",
+    include_in_schema=False,
+)
+def robots():
+    robots_content = """User-agent: *
+Allow: /
+
+Sitemap: https://imagekitbox.com/sitemap.xml
+"""
+
+    return Response(
+        content=robots_content,
+        media_type="text/plain",
     )
 
 
