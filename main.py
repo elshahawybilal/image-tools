@@ -351,6 +351,86 @@ def resize_template(
     )
 
 
+
+def cropper_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="cropper.html",
+        context={"page_title": "Image Cropper", "error_message": error_message},
+    )
+
+
+def compressor_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="compressor.html",
+        context={
+            "page_title": "Image Compressor",
+            "error_message": error_message,
+        },
+    )
+
+
+def get_compression_details(original_format):
+    if original_format == "JPEG":
+        return {
+            "target_format": "JPG",
+            "extension": "jpg",
+            "media_type": "image/jpeg",
+            "save_format": "JPEG",
+        }
+
+    if original_format == "PNG":
+        return {
+            "target_format": "PNG",
+            "extension": "png",
+            "media_type": "image/png",
+            "save_format": "PNG",
+        }
+
+    if original_format == "WEBP":
+        return {
+            "target_format": "WEBP",
+            "extension": "webp",
+            "media_type": "image/webp",
+            "save_format": "WEBP",
+        }
+
+    return None
+
+
+def get_compression_save_options(
+    original_format,
+    quality,
+):
+    if original_format == "JPEG":
+        return {
+            "quality": quality,
+            "optimize": True,
+            "progressive": True,
+        }
+
+    if original_format == "WEBP":
+        return {
+            "quality": quality,
+            "method": 6,
+        }
+
+    if original_format == "PNG":
+        return {
+            "optimize": True,
+            "compress_level": 9,
+        }
+
+    return {}
+
+
 @app.get(
     "/sitemap.xml",
     include_in_schema=False,
@@ -366,6 +446,12 @@ def sitemap():
     </url>
     <url>
         <loc>https://imagekitbox.com/resize</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/compressor</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/cropper</loc>
     </url>
     <url>
         <loc>https://imagekitbox.com/about</loc>
@@ -503,6 +589,27 @@ def resize_page(
     request: Request,
 ):
     return resize_template(
+        request=request
+    )
+
+
+
+@app.get(
+    "/cropper",
+    response_class=HTMLResponse,
+)
+def cropper_page(request: Request):
+    return cropper_template(request=request)
+
+
+@app.get(
+    "/compressor",
+    response_class=HTMLResponse,
+)
+def compressor_page(
+    request: Request,
+):
+    return compressor_template(
         request=request
     )
 
@@ -811,4 +918,267 @@ async def resize_image(
         output_buffer,
         media_type=media_type,
         headers=headers,
+    )
+
+
+@app.post(
+    "/compress",
+    response_class=HTMLResponse,
+)
+async def compress_image(
+    request: Request,
+    image: UploadFile = File(...),
+    quality: int = Form(80),
+):
+    if quality < 10 or quality > 95:
+        return compressor_template(
+            request=request,
+            error_message=(
+                "Quality must be between "
+                "10 and 95."
+            ),
+        )
+
+    file_data = await image.read(
+        MAX_FILE_SIZE + 1
+    )
+
+    if not file_data:
+        return compressor_template(
+            request=request,
+            error_message=(
+                "Please choose an image."
+            ),
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return compressor_template(
+            request=request,
+            error_message=(
+                "The image is too large. "
+                "Maximum file size is 20 MB."
+            ),
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+            source_image.verify()
+
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            original_format = (
+                source_image.format or ""
+            ).upper()
+
+            compression_details = (
+                get_compression_details(
+                    original_format
+                )
+            )
+
+            if compression_details is None:
+                output_buffer.close()
+
+                return compressor_template(
+                    request=request,
+                    error_message=(
+                        "Image Compressor currently "
+                        "supports JPG, PNG and WEBP "
+                        "images."
+                    ),
+                )
+
+            compressed_image = prepare_image(
+                source_image,
+                compression_details[
+                    "target_format"
+                ],
+            )
+
+            try:
+                compressed_image.save(
+                    output_buffer,
+                    format=compression_details[
+                        "save_format"
+                    ],
+                    **get_compression_save_options(
+                        original_format,
+                        quality,
+                    ),
+                )
+
+            finally:
+                compressed_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+
+        return compressor_template(
+            request=request,
+            error_message=(
+                "The selected file is not "
+                "a valid image."
+            ),
+        )
+
+    except Exception:
+        output_buffer.close()
+
+        return compressor_template(
+            request=request,
+            error_message=(
+                "The image could not be compressed. "
+                "Please try another image."
+            ),
+        )
+
+    compressed_size = output_buffer.tell()
+    original_size = len(file_data)
+
+    if original_size > 0:
+        saved_percent = max(
+            0.0,
+            (
+                (original_size - compressed_size)
+                / original_size
+            ) * 100,
+        )
+    else:
+        saved_percent = 0.0
+
+    output_buffer.seek(0)
+
+    safe_name = clean_file_name(
+        image.filename
+    )
+
+    download_name = (
+        f"{safe_name}_compressed."
+        f"{compression_details['extension']}"
+    )
+
+    headers = {
+        "Content-Disposition": (
+            "attachment; "
+            f'filename="{download_name}"'
+        ),
+        "X-Original-Size": str(
+            original_size
+        ),
+        "X-Compressed-Size": str(
+            compressed_size
+        ),
+        "X-Saved-Percent": (
+            f"{saved_percent:.2f}"
+        ),
+    }
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=compression_details[
+            "media_type"
+        ],
+        headers=headers,
+    )
+
+
+@app.post(
+    "/crop",
+    response_class=HTMLResponse,
+)
+async def crop_image(
+    request: Request,
+    image: UploadFile = File(...),
+    x: int = Form(...),
+    y: int = Form(...),
+    width: int = Form(...),
+    height: int = Form(...),
+):
+    if x < 0 or y < 0 or width <= 0 or height <= 0:
+        return cropper_template(
+            request=request,
+            error_message="Please select a valid crop area.",
+        )
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return cropper_template(request=request, error_message="Please choose an image.")
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return cropper_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.verify()
+
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+            image_width, image_height = source_image.size
+            right, bottom = x + width, y + height
+
+            if x >= image_width or y >= image_height or right > image_width or bottom > image_height:
+                output_buffer.close()
+                return cropper_template(
+                    request=request,
+                    error_message="The selected crop area is outside the image.",
+                )
+
+            original_format = (source_image.format or "PNG").upper()
+            cropped_image = source_image.crop((x, y, right, bottom))
+
+            if original_format == "JPEG":
+                final_image = prepare_image(cropped_image, "JPG")
+                extension, media_type, save_format = "jpg", "image/jpeg", "JPEG"
+                save_options = get_save_options("JPG")
+            elif original_format == "WEBP":
+                final_image = prepare_image(cropped_image, "WEBP")
+                extension, media_type, save_format = "webp", "image/webp", "WEBP"
+                save_options = get_save_options("WEBP")
+            else:
+                final_image = prepare_image(cropped_image, "PNG")
+                extension, media_type, save_format = "png", "image/png", "PNG"
+                save_options = get_save_options("PNG")
+
+            try:
+                final_image.save(output_buffer, format=save_format, **save_options)
+            finally:
+                final_image.close()
+                cropped_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return cropper_template(
+            request=request,
+            error_message="The selected file is not a valid image.",
+        )
+    except Exception:
+        output_buffer.close()
+        return cropper_template(
+            request=request,
+            error_message="The image could not be cropped. Please try another image.",
+        )
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+    download_name = f"{safe_name}_cropped.{extension}"
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
     )

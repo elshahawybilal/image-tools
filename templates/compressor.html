@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Online Image Compressor - ImageKitBox
+{% endblock %}
+
+
+{% block description %}
+Compress JPG, PNG and WEBP images online for free. Reduce image file size quickly while keeping good visual quality.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="tool-page">
+
+        <a
+            class="back-link"
+            href="/"
+        >
+            ← Back to Home
+        </a>
+
+
+        <section class="tool-heading">
+
+            <h1>
+                Free Online Image Compressor
+            </h1>
+
+            <p>
+                Reduce the file size of your JPG,
+                PNG and WEBP images quickly
+                from your browser.
+            </p>
+
+        </section>
+
+
+        <section
+            class="ad-placeholder ad-placeholder-top"
+        >
+            <span>
+                Advertisement
+            </span>
+        </section>
+
+
+        <section class="converter-box">
+
+            {% if error_message %}
+
+                <div class="error-message">
+                    {{ error_message }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                action="/compress"
+                method="post"
+                enctype="multipart/form-data"
+            >
+
+                <div class="form-group">
+
+                    <label for="image">
+                        Choose image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="quality">
+                        Compression Quality
+                    </label>
+
+                    <select
+                        id="quality"
+                        name="quality"
+                        required
+                    >
+
+                        <option value="95">
+                            Very High Quality
+                        </option>
+
+                        <option value="85" selected>
+                            High Quality
+                        </option>
+
+                        <option value="75">
+                            Medium Quality
+                        </option>
+
+                        <option value="60">
+                            Smaller File
+                        </option>
+
+                        <option value="40">
+                            Maximum Compression
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    class="primary-button"
+                    type="submit"
+                >
+                    Compress Image
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Compress Images Online for Free
+            </h2>
+
+            <p>
+                ImageKitBox helps you reduce the
+                file size of your images directly
+                in your browser without installing
+                additional software.
+            </p>
+
+            <p>
+                Smaller image files can help websites
+                load faster, reduce storage usage
+                and make images easier to share
+                by email or messaging apps.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                How to Compress an Image
+            </h2>
+
+            <ol>
+
+                <li>
+                    Choose a JPG, PNG or WEBP image
+                    from your device.
+                </li>
+
+                <li>
+                    Select the compression quality
+                    you want.
+                </li>
+
+                <li>
+                    Click the
+                    <strong>
+                        Compress Image
+                    </strong>
+                    button.
+                </li>
+
+                <li>
+                    Download the compressed image
+                    to your device.
+                </li>
+
+            </ol>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Supported Image Formats
+            </h2>
+
+            <p>
+                The ImageKitBox Image Compressor
+                currently supports JPG, JPEG,
+                PNG and WEBP images.
+            </p>
+
+            <p>
+                The maximum upload size is
+                20 MB per image.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Image Quality and File Size
+            </h2>
+
+            <p>
+                Higher quality settings usually
+                produce larger files while lower
+                quality settings can reduce the
+                file size more aggressively.
+            </p>
+
+            <p>
+                For most photos, the High Quality
+                setting provides a good balance
+                between image quality and file size.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Why Compress Images?
+            </h2>
+
+            <p>
+                Large images can slow down websites,
+                use more bandwidth and take longer
+                to upload or download.
+            </p>
+
+            <p>
+                Compressing images can help improve
+                website loading speed and reduce
+                the amount of storage or data
+                required for each image.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Frequently Asked Questions
+            </h2>
+
+
+            <h3>
+                Is the Image Compressor free?
+            </h3>
+
+            <p>
+                Yes. You can use the ImageKitBox
+                Image Compressor online for free.
+            </p>
+
+
+            <h3>
+                Which image formats can I compress?
+            </h3>
+
+            <p>
+                The compressor currently supports
+                JPG, JPEG, PNG and WEBP images.
+            </p>
+
+
+            <h3>
+                Will compression reduce image quality?
+            </h3>
+
+            <p>
+                JPG and WEBP compression may reduce
+                some image quality depending on the
+                selected setting. Higher quality
+                settings preserve more detail.
+            </p>
+
+            <p>
+                PNG images are optimized using
+                lossless compression whenever
+                possible.
+            </p>
+
+
+            <h3>
+                What is the maximum upload size?
+            </h3>
+
+            <p>
+                The current maximum upload size is
+                20 MB per image.
+            </p>
+
+
+            <h3>
+                Do I need to install software?
+            </h3>
+
+            <p>
+                No. The compressor works directly
+                from your web browser.
+            </p>
+
+        </section>
+
+
+        <section
+            class="ad-placeholder ad-placeholder-bottom"
+        >
+            <span>
+                Advertisement
+            </span>
+        </section>
+
+    </div>
+
+</main>
+
+{% endblock %}

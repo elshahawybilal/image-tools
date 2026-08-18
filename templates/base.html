@@ -40,7 +40,7 @@
 
     <meta
         name="description"
-        content="{% block description %}Free online image tools for converting, resizing and editing images quickly and easily.{% endblock %}"
+        content="{% block description %}Free online image tools for converting, resizing, compressing, cropping and editing images quickly and easily.{% endblock %}"
     >
 
     <link
@@ -88,18 +88,72 @@
                     Home
                 </a>
 
-                <a
-                    class="nav-link"
-                    href="/converter"
-                >
-                    Converter
-                </a>
+
+                <div class="nav-dropdown">
+
+                    <button
+                        class="nav-link dropdown-button"
+                        type="button"
+                    >
+                        Image Tools
+                        <span class="dropdown-arrow">
+                            ▼
+                        </span>
+                    </button>
+
+
+                    <div class="dropdown-menu">
+
+                        <a href="/converter">
+                            Image Converter
+                        </a>
+
+                        <a href="/resize">
+                            Image Resizer
+                        </a>
+
+                        <a href="/compressor">
+                            Image Compressor
+                        </a>
+
+                        <a href="/cropper">
+                            Image Cropper
+                        </a>
+
+                    </div>
+
+                </div>
+
 
                 <a
                     class="nav-link"
-                    href="/resize"
+                    href="/about"
                 >
-                    Resizer
+                    About
+                </a>
+
+
+                <a
+                    class="nav-link"
+                    href="/privacy"
+                >
+                    Privacy Policy
+                </a>
+
+
+                <a
+                    class="nav-link"
+                    href="/terms"
+                >
+                    Terms
+                </a>
+
+
+                <a
+                    class="nav-link"
+                    href="/contact"
+                >
+                    Contact
                 </a>
 
             </nav>
@@ -171,6 +225,60 @@
 
     {% block extra_scripts %}
     {% endblock %}
+
+
+    <script>
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const dropdown =
+                    document.querySelector(
+                        ".nav-dropdown"
+                    );
+
+                const button =
+                    document.querySelector(
+                        ".dropdown-button"
+                    );
+
+                if (!dropdown || !button) {
+                    return;
+                }
+
+
+                if (
+                    button.contains(
+                        event.target
+                    )
+                ) {
+
+                    dropdown.classList.toggle(
+                        "open"
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !dropdown.contains(
+                        event.target
+                    )
+                ) {
+
+                    dropdown.classList.remove(
+                        "open"
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
 
 </body>
 

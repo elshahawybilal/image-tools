@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Online Image Cropper - Crop Images Easily
+{% endblock %}
+
+
+{% block description %}
+Crop images online for free. Select the exact area you want to keep and download the cropped image quickly from your browser.
+{% endblock %}
+
+
+{% block extra_head %}
+
+<style>
+    .cropper-preview-wrapper {
+        margin-top: 20px;
+        padding: 18px;
+
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+    }
+
+    .cropper-canvas-wrapper {
+        position: relative;
+        width: 100%;
+        overflow: auto;
+
+        background: #111827;
+        border-radius: 12px;
+    }
+
+    #cropCanvas {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+
+        cursor: crosshair;
+    }
+
+    .cropper-coordinates {
+        margin-top: 18px;
+
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .cropper-coordinate-box {
+        padding: 12px;
+
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+    }
+
+    .cropper-coordinate-box strong {
+        display: block;
+        margin-bottom: 4px;
+
+        color: #111827;
+        font-size: 13px;
+    }
+
+    .cropper-coordinate-box span {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .cropper-help {
+        margin-top: 15px;
+
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .cropper-submit {
+        margin-top: 20px;
+    }
+
+    @media (max-width: 700px) {
+        .cropper-coordinates {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="tool-page">
+
+        <a
+            class="back-link"
+            href="/"
+        >
+            ← Back to Home
+        </a>
+
+
+        <section class="tool-heading">
+
+            <h1>
+                Free Online Image Cropper
+            </h1>
+
+            <p>
+                Upload an image, select the area
+                you want to keep and download
+                the cropped result.
+            </p>
+
+        </section>
+
+
+        <section
+            class="ad-placeholder ad-placeholder-top"
+        >
+            <span>
+                Advertisement
+            </span>
+        </section>
+
+
+        <section class="converter-box">
+
+            {% if error_message %}
+
+                <div class="error-message">
+                    {{ error_message }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                id="cropForm"
+                action="/crop"
+                method="post"
+                enctype="multipart/form-data"
+            >
+
+                <div class="form-group">
+
+                    <label for="image">
+                        Choose image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        required
+                    >
+
+                </div>
+
+
+                <input
+                    type="hidden"
+                    id="cropX"
+                    name="x"
+                    value="0"
+                >
+
+                <input
+                    type="hidden"
+                    id="cropY"
+                    name="y"
+                    value="0"
+                >
+
+                <input
+                    type="hidden"
+                    id="cropWidth"
+                    name="width"
+                    value="0"
+                >
+
+                <input
+                    type="hidden"
+                    id="cropHeight"
+                    name="height"
+                    value="0"
+                >
+
+
+                <div
+                    id="previewWrapper"
+                    class="cropper-preview-wrapper"
+                    style="display: none;"
+                >
+
+                    <div class="cropper-canvas-wrapper">
+
+                        <canvas
+                            id="cropCanvas"
+                        ></canvas>
+
+                    </div>
+
+
+                    <div class="cropper-coordinates">
+
+                        <div class="cropper-coordinate-box">
+
+                            <strong>
+                                X Position
+                            </strong>
+
+                            <span id="displayX">
+                                0 px
+                            </span>
+
+                        </div>
+
+
+                        <div class="cropper-coordinate-box">
+
+                            <strong>
+                                Y Position
+                            </strong>
+
+                            <span id="displayY">
+                                0 px
+                            </span>
+
+                        </div>
+
+
+                        <div class="cropper-coordinate-box">
+
+                            <strong>
+                                Crop Width
+                            </strong>
+
+                            <span id="displayWidth">
+                                0 px
+                            </span>
+
+                        </div>
+
+
+                        <div class="cropper-coordinate-box">
+
+                            <strong>
+                                Crop Height
+                            </strong>
+
+                            <span id="displayHeight">
+                                0 px
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <p class="cropper-help">
+                        Click and drag over the image
+                        to select the area you want
+                        to keep.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="cropButton"
+                    class="primary-button cropper-submit"
+                    type="submit"
+                    disabled
+                >
+                    Crop Image
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Crop Images Online for Free
+            </h2>
+
+            <p>
+                ImageKitBox lets you crop images
+                directly from your browser.
+                Select the exact part of the image
+                you want to keep and download
+                the cropped result.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                How to Crop an Image
+            </h2>
+
+            <ol>
+
+                <li>
+                    Choose an image from your device.
+                </li>
+
+                <li>
+                    Click and drag over the image
+                    to select the crop area.
+                </li>
+
+                <li>
+                    Review the selected width
+                    and height.
+                </li>
+
+                <li>
+                    Click
+                    <strong>Crop Image</strong>.
+                </li>
+
+                <li>
+                    Download the cropped image.
+                </li>
+
+            </ol>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Select the Exact Area You Need
+            </h2>
+
+            <p>
+                The crop tool lets you select
+                a custom rectangular area from
+                your image. Only the selected
+                area will be included in the
+                downloaded result.
+            </p>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <h2>
+                Frequently Asked Questions
+            </h2>
+
+
+            <h3>
+                Is the Image Cropper free?
+            </h3>
+
+            <p>
+                Yes. You can use the ImageKitBox
+                Image Cropper online for free.
+            </p>
+
+
+            <h3>
+                What image formats can I crop?
+            </h3>
+
+            <p>
+                The tool accepts supported image
+                files through your browser.
+                JPG images are downloaded as JPG,
+                WebP images as WebP, while other
+                supported images are currently
+                saved as PNG.
+            </p>
+
+
+            <h3>
+                What is the maximum upload size?
+            </h3>
+
+            <p>
+                The maximum upload size is
+                20 MB per image.
+            </p>
+
+        </section>
+
+
+        <section
+            class="ad-placeholder ad-placeholder-bottom"
+        >
+            <span>
+                Advertisement
+            </span>
+        </section>
+
+    </div>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+    const imageInput = document.getElementById(
+        "image"
+    );
+
+    const previewWrapper = document.getElementById(
+        "previewWrapper"
+    );
+
+    const canvas = document.getElementById(
+        "cropCanvas"
+    );
+
+    const ctx = canvas.getContext(
+        "2d"
+    );
+
+    const cropButton = document.getElementById(
+        "cropButton"
+    );
+
+    const cropX = document.getElementById(
+        "cropX"
+    );
+
+    const cropY = document.getElementById(
+        "cropY"
+    );
+
+    const cropWidth = document.getElementById(
+        "cropWidth"
+    );
+
+    const cropHeight = document.getElementById(
+        "cropHeight"
+    );
+
+    const displayX = document.getElementById(
+        "displayX"
+    );
+
+    const displayY = document.getElementById(
+        "displayY"
+    );
+
+    const displayWidth = document.getElementById(
+        "displayWidth"
+    );
+
+    const displayHeight = document.getElementById(
+        "displayHeight"
+    );
+
+
+    let imageObject = null;
+
+    let isDragging = false;
+
+    let startX = 0;
+    let startY = 0;
+
+    let currentX = 0;
+    let currentY = 0;
+
+
+    imageInput.addEventListener(
+        "change",
+        function () {
+
+            const file = imageInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                imageObject = new Image();
+
+                imageObject.onload = function () {
+
+                    canvas.width =
+                        imageObject.naturalWidth;
+
+                    canvas.height =
+                        imageObject.naturalHeight;
+
+                    drawImage();
+
+                    previewWrapper.style.display =
+                        "block";
+
+                    cropButton.disabled = true;
+
+                    resetCoordinates();
+
+                };
+
+                imageObject.src =
+                    event.target.result;
+
+            };
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+
+    function drawImage() {
+
+        if (!imageObject) {
+            return;
+        }
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        ctx.drawImage(
+            imageObject,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+    }
+
+
+    function resetCoordinates() {
+
+        cropX.value = 0;
+        cropY.value = 0;
+        cropWidth.value = 0;
+        cropHeight.value = 0;
+
+        displayX.textContent = "0 px";
+        displayY.textContent = "0 px";
+        displayWidth.textContent = "0 px";
+        displayHeight.textContent = "0 px";
+
+    }
+
+
+    function getCanvasPosition(event) {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+        const scaleX =
+            canvas.width / rect.width;
+
+        const scaleY =
+            canvas.height / rect.height;
+
+        return {
+            x:
+                (event.clientX - rect.left)
+                * scaleX,
+
+            y:
+                (event.clientY - rect.top)
+                * scaleY
+        };
+
+    }
+
+
+    canvas.addEventListener(
+        "mousedown",
+        function (event) {
+
+            if (!imageObject) {
+                return;
+            }
+
+            const position =
+                getCanvasPosition(event);
+
+            startX = position.x;
+            startY = position.y;
+
+            currentX = startX;
+            currentY = startY;
+
+            isDragging = true;
+
+            cropButton.disabled = true;
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mousemove",
+        function (event) {
+
+            if (!isDragging) {
+                return;
+            }
+
+            const position =
+                getCanvasPosition(event);
+
+            currentX = position.x;
+            currentY = position.y;
+
+            drawSelection();
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mouseup",
+        function (event) {
+
+            if (!isDragging) {
+                return;
+            }
+
+            const position =
+                getCanvasPosition(event);
+
+            currentX = position.x;
+            currentY = position.y;
+
+            isDragging = false;
+
+            finishSelection();
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "mouseleave",
+        function () {
+
+            if (!isDragging) {
+                return;
+            }
+
+            isDragging = false;
+
+            finishSelection();
+
+        }
+    );
+
+
+    function drawSelection() {
+
+        drawImage();
+
+        const left =
+            Math.min(
+                startX,
+                currentX
+            );
+
+        const top =
+            Math.min(
+                startY,
+                currentY
+            );
+
+        const width =
+            Math.abs(
+                currentX - startX
+            );
+
+        const height =
+            Math.abs(
+                currentY - startY
+            );
+
+        ctx.fillStyle =
+            "rgba(37, 99, 235, 0.20)";
+
+        ctx.fillRect(
+            left,
+            top,
+            width,
+            height
+        );
+
+        ctx.strokeStyle =
+            "#2563eb";
+
+        ctx.lineWidth = Math.max(
+            2,
+            canvas.width / 500
+        );
+
+        ctx.strokeRect(
+            left,
+            top,
+            width,
+            height
+        );
+
+    }
+
+
+    function finishSelection() {
+
+        const left =
+            Math.round(
+                Math.min(
+                    startX,
+                    currentX
+                )
+            );
+
+        const top =
+            Math.round(
+                Math.min(
+                    startY,
+                    currentY
+                )
+            );
+
+        const width =
+            Math.round(
+                Math.abs(
+                    currentX - startX
+                )
+            );
+
+        const height =
+            Math.round(
+                Math.abs(
+                    currentY - startY
+                )
+            );
+
+        if (
+            width < 1
+            || height < 1
+        ) {
+            resetCoordinates();
+
+            cropButton.disabled = true;
+
+            drawImage();
+
+            return;
+        }
+
+        cropX.value = left;
+        cropY.value = top;
+        cropWidth.value = width;
+        cropHeight.value = height;
+
+        displayX.textContent =
+            left + " px";
+
+        displayY.textContent =
+            top + " px";
+
+        displayWidth.textContent =
+            width + " px";
+
+        displayHeight.textContent =
+            height + " px";
+
+        cropButton.disabled = false;
+
+        drawSelection();
+
+    }
+</script>
+
+{% endblock %}
