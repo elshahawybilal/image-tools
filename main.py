@@ -377,6 +377,14 @@ def compressor_template(
     )
 
 
+def rotate_flip_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="rotate-flip.html",
+        context={"page_title": "Rotate & Flip Image", "error_message": error_message},
+    )
+
+
 def get_compression_details(original_format):
     if original_format == "JPEG":
         return {
@@ -452,6 +460,9 @@ def sitemap():
     </url>
     <url>
         <loc>https://imagekitbox.com/cropper</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/rotate-flip</loc>
     </url>
     <url>
         <loc>https://imagekitbox.com/about</loc>
@@ -600,6 +611,14 @@ def resize_page(
 )
 def cropper_page(request: Request):
     return cropper_template(request=request)
+
+
+@app.get(
+    "/rotate-flip",
+    response_class=HTMLResponse,
+)
+def rotate_flip_page(request: Request):
+    return rotate_flip_template(request=request)
 
 
 @app.get(
@@ -1176,6 +1195,96 @@ async def crop_image(
     output_buffer.seek(0)
     safe_name = clean_file_name(image.filename)
     download_name = f"{safe_name}_cropped.{extension}"
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
+    )
+
+@app.post(
+    "/rotate-flip",
+    response_class=HTMLResponse,
+)
+async def rotate_flip_image(
+    request: Request,
+    image: UploadFile = File(...),
+    action: str = Form(...),
+):
+    actions = {
+        "rotate_90": ("rotated_90", Image.Transpose.ROTATE_270),
+        "rotate_180": ("rotated_180", Image.Transpose.ROTATE_180),
+        "rotate_270": ("rotated_270", Image.Transpose.ROTATE_90),
+        "flip_horizontal": ("flipped_horizontal", Image.Transpose.FLIP_LEFT_RIGHT),
+        "flip_vertical": ("flipped_vertical", Image.Transpose.FLIP_TOP_BOTTOM),
+    }
+
+    if action not in actions:
+        return rotate_flip_template(
+            request=request,
+            error_message="Please choose a valid rotate or flip option.",
+        )
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return rotate_flip_template(request=request, error_message="Please choose an image.")
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return rotate_flip_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.verify()
+
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            original_format = (source_image.format or "PNG").upper()
+            suffix, method = actions[action]
+            transformed_image = source_image.transpose(method)
+
+            if original_format == "JPEG":
+                final_image = prepare_image(transformed_image, "JPG")
+                extension, media_type, save_format = "jpg", "image/jpeg", "JPEG"
+                save_options = get_save_options("JPG")
+            elif original_format == "WEBP":
+                final_image = prepare_image(transformed_image, "WEBP")
+                extension, media_type, save_format = "webp", "image/webp", "WEBP"
+                save_options = get_save_options("WEBP")
+            else:
+                final_image = prepare_image(transformed_image, "PNG")
+                extension, media_type, save_format = "png", "image/png", "PNG"
+                save_options = get_save_options("PNG")
+
+            try:
+                final_image.save(output_buffer, format=save_format, **save_options)
+            finally:
+                final_image.close()
+                transformed_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return rotate_flip_template(
+            request=request,
+            error_message="The selected file is not a valid image.",
+        )
+    except Exception:
+        output_buffer.close()
+        return rotate_flip_template(
+            request=request,
+            error_message="The image could not be rotated or flipped. Please try another image.",
+        )
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+    download_name = f"{safe_name}_{suffix}.{extension}"
 
     return StreamingResponse(
         output_buffer,
