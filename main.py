@@ -6,7 +6,7 @@ from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from PIL import Image, UnidentifiedImageError, features
+from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError, features
 
 
 app = FastAPI(
@@ -385,6 +385,20 @@ def rotate_flip_template(request, error_message=None):
     )
 
 
+def watermark_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="watermark.html",
+        context={
+            "page_title": "Image Watermark",
+            "error_message": error_message,
+        },
+    )
+
+
 def get_compression_details(original_format):
     if original_format == "JPEG":
         return {
@@ -463,6 +477,9 @@ def sitemap():
     </url>
     <url>
         <loc>https://imagekitbox.com/rotate-flip</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/watermark</loc>
     </url>
     <url>
         <loc>https://imagekitbox.com/about</loc>
@@ -619,6 +636,18 @@ def cropper_page(request: Request):
 )
 def rotate_flip_page(request: Request):
     return rotate_flip_template(request=request)
+
+
+@app.get(
+    "/watermark",
+    response_class=HTMLResponse,
+)
+def watermark_page(
+    request: Request,
+):
+    return watermark_template(
+        request=request
+    )
 
 
 @app.get(
@@ -1290,4 +1319,543 @@ async def rotate_flip_image(
         output_buffer,
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
+    )
+
+def load_watermark_font(font_size):
+    font_paths = [
+        "arial.ttf",
+        "Arial.ttf",
+        "C:/Windows/Fonts/arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ]
+
+    for font_path in font_paths:
+        try:
+            return ImageFont.truetype(
+                font_path,
+                font_size,
+            )
+        except Exception:
+            continue
+
+    return ImageFont.load_default()
+
+
+def parse_hex_color(hex_color):
+    if not re.fullmatch(
+        r"#[0-9A-Fa-f]{6}",
+        hex_color or "",
+    ):
+        hex_color = "#ffffff"
+
+    return (
+        int(hex_color[1:3], 16),
+        int(hex_color[3:5], 16),
+        int(hex_color[5:7], 16),
+    )
+
+
+def create_text_watermark_layer(
+    text,
+    font,
+    fill_color,
+    stroke_width,
+    stroke_fill,
+    rotation,
+):
+    test_image = Image.new(
+        "RGBA",
+        (10, 10),
+        (0, 0, 0, 0),
+    )
+    test_draw = ImageDraw.Draw(test_image)
+
+    bbox = test_draw.textbbox(
+        (0, 0),
+        text,
+        font=font,
+        stroke_width=stroke_width,
+    )
+
+    text_width = max(
+        1,
+        bbox[2] - bbox[0],
+    )
+    text_height = max(
+        1,
+        bbox[3] - bbox[1],
+    )
+
+    padding = max(
+        10,
+        text_height // 2,
+    )
+
+    layer = Image.new(
+        "RGBA",
+        (
+            text_width + padding * 2,
+            text_height + padding * 2,
+        ),
+        (0, 0, 0, 0),
+    )
+
+    draw = ImageDraw.Draw(layer)
+
+    draw.text(
+        (
+            padding - bbox[0],
+            padding - bbox[1],
+        ),
+        text,
+        font=font,
+        fill=fill_color,
+        stroke_width=stroke_width,
+        stroke_fill=stroke_fill,
+    )
+
+    test_image.close()
+
+    if rotation != 0:
+        rotated_layer = layer.rotate(
+            rotation,
+            expand=True,
+            resample=Image.Resampling.BICUBIC,
+        )
+
+        layer.close()
+        return rotated_layer
+
+    return layer
+
+
+def add_single_watermark(
+    image,
+    watermark_layer,
+    position,
+):
+    image_width, image_height = image.size
+    mark_width, mark_height = watermark_layer.size
+
+    margin = max(
+        10,
+        int(
+            min(
+                image_width,
+                image_height,
+            ) * 0.03
+        ),
+    )
+
+    if position == "top_left":
+        x = margin
+        y = margin
+
+    elif position == "top_right":
+        x = (
+            image_width
+            - mark_width
+            - margin
+        )
+        y = margin
+
+    elif position == "center":
+        x = (
+            image_width
+            - mark_width
+        ) // 2
+        y = (
+            image_height
+            - mark_height
+        ) // 2
+
+    elif position == "bottom_left":
+        x = margin
+        y = (
+            image_height
+            - mark_height
+            - margin
+        )
+
+    else:
+        x = (
+            image_width
+            - mark_width
+            - margin
+        )
+        y = (
+            image_height
+            - mark_height
+            - margin
+        )
+
+    image.alpha_composite(
+        watermark_layer,
+        (
+            max(0, x),
+            max(0, y),
+        ),
+    )
+
+
+def add_repeated_watermark(
+    image,
+    watermark_layer,
+):
+    image_width, image_height = image.size
+    mark_width, mark_height = watermark_layer.size
+
+    horizontal_gap = max(
+        30,
+        mark_width // 2,
+    )
+
+    vertical_gap = max(
+        30,
+        mark_height,
+    )
+
+    step_x = mark_width + horizontal_gap
+    step_y = mark_height + vertical_gap
+
+    y = -(mark_height // 2)
+    row_number = 0
+
+    while y < image_height:
+        x = -(mark_width // 2)
+
+        if row_number % 2:
+            x -= step_x // 2
+
+        while x < image_width:
+            image.alpha_composite(
+                watermark_layer,
+                (x, y),
+            )
+
+            x += step_x
+
+        y += step_y
+        row_number += 1
+
+
+@app.post(
+    "/watermark",
+    response_class=HTMLResponse,
+)
+async def add_watermark(
+    request: Request,
+    image: UploadFile = File(...),
+    watermark_text: str = Form(...),
+    position: str = Form("bottom_right"),
+    opacity: int = Form(60),
+    font_size: int = Form(8),
+    text_color: str = Form("#ffffff"),
+    outline: str | None = Form(None),
+    rotation: int = Form(0),
+    repeat_watermark: str | None = Form(None),
+):
+    watermark_text = watermark_text.strip()
+
+    if not watermark_text:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Please enter watermark text."
+            ),
+        )
+
+    if len(watermark_text) > 100:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Watermark text must be "
+                "100 characters or less."
+            ),
+        )
+
+    valid_positions = {
+        "top_left",
+        "top_right",
+        "center",
+        "bottom_left",
+        "bottom_right",
+    }
+
+    if position not in valid_positions:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Please choose a valid "
+                "watermark position."
+            ),
+        )
+
+    if not 10 <= opacity <= 100:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Opacity must be between "
+                "10 and 100."
+            ),
+        )
+
+    if not 2 <= font_size <= 30:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Font size must be between "
+                "2 and 30."
+            ),
+        )
+
+    if rotation not in {
+        -45,
+        0,
+        45,
+    }:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Please choose a valid rotation."
+            ),
+        )
+
+    file_data = await image.read(
+        MAX_FILE_SIZE + 1
+    )
+
+    if not file_data:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "Please choose an image."
+            ),
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return watermark_template(
+            request=request,
+            error_message=(
+                "The image is too large. "
+                "Maximum file size is 20 MB."
+            ),
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+            source_image.verify()
+
+        with Image.open(
+            io.BytesIO(file_data)
+        ) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            original_format = (
+                source_image.format or "PNG"
+            ).upper()
+
+            working_image = source_image.convert(
+                "RGBA"
+            )
+
+            image_width, image_height = (
+                working_image.size
+            )
+
+            actual_font_size = max(
+                12,
+                int(
+                    min(
+                        image_width,
+                        image_height,
+                    )
+                    * (
+                        font_size / 100
+                    )
+                ),
+            )
+
+            font = load_watermark_font(
+                actual_font_size
+            )
+
+            red, green, blue = (
+                parse_hex_color(
+                    text_color
+                )
+            )
+
+            alpha = int(
+                255
+                * (
+                    opacity / 100
+                )
+            )
+
+            fill_color = (
+                red,
+                green,
+                blue,
+                alpha,
+            )
+
+            outline_enabled = (
+                outline == "on"
+            )
+
+            repeat_enabled = (
+                repeat_watermark == "on"
+            )
+
+            if outline_enabled:
+                stroke_width = max(
+                    1,
+                    actual_font_size // 20,
+                )
+
+                stroke_fill = (
+                    0,
+                    0,
+                    0,
+                    alpha,
+                )
+
+            else:
+                stroke_width = 0
+                stroke_fill = None
+
+            watermark_layer = (
+                create_text_watermark_layer(
+                    watermark_text,
+                    font,
+                    fill_color,
+                    stroke_width,
+                    stroke_fill,
+                    rotation,
+                )
+            )
+
+            try:
+                if repeat_enabled:
+                    add_repeated_watermark(
+                        working_image,
+                        watermark_layer,
+                    )
+
+                else:
+                    add_single_watermark(
+                        working_image,
+                        watermark_layer,
+                        position,
+                    )
+
+            finally:
+                watermark_layer.close()
+
+            if original_format == "JPEG":
+                final_image = (
+                    add_white_background(
+                        working_image
+                    )
+                )
+
+                extension = "jpg"
+                media_type = "image/jpeg"
+                save_format = "JPEG"
+                save_options = (
+                    get_save_options(
+                        "JPG"
+                    )
+                )
+
+            elif original_format == "WEBP":
+                final_image = prepare_image(
+                    working_image,
+                    "WEBP",
+                )
+
+                extension = "webp"
+                media_type = "image/webp"
+                save_format = "WEBP"
+                save_options = (
+                    get_save_options(
+                        "WEBP"
+                    )
+                )
+
+            else:
+                final_image = prepare_image(
+                    working_image,
+                    "PNG",
+                )
+
+                extension = "png"
+                media_type = "image/png"
+                save_format = "PNG"
+                save_options = (
+                    get_save_options(
+                        "PNG"
+                    )
+                )
+
+            try:
+                final_image.save(
+                    output_buffer,
+                    format=save_format,
+                    **save_options,
+                )
+
+            finally:
+                final_image.close()
+                working_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+
+        return watermark_template(
+            request=request,
+            error_message=(
+                "The selected file is "
+                "not a valid image."
+            ),
+        )
+
+    except Exception:
+        output_buffer.close()
+
+        return watermark_template(
+            request=request,
+            error_message=(
+                "The watermark could not "
+                "be added. Please try "
+                "another image."
+            ),
+        )
+
+    output_buffer.seek(0)
+
+    safe_name = clean_file_name(
+        image.filename
+    )
+
+    download_name = (
+        f"{safe_name}_watermarked."
+        f"{extension}"
+    )
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": (
+                "attachment; "
+                f'filename="{download_name}"'
+            )
+        },
     )

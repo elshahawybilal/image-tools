@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Online Image Watermark - Add Text Watermarks to Images
+{% endblock %}
+
+
+{% block description %}
+Add a customizable text watermark to your images online for free. Adjust watermark position, opacity, size, color, outline, rotation and repeat mode with ImageKitBox.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            Add Watermark to Image
+        </h1>
+
+        <p>
+            Add a text watermark to your image
+            and customize its position, opacity,
+            size, color, outline and rotation.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/watermark"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Choose Image
+                </label>
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="watermark_text">
+                    Watermark Text
+                </label>
+
+                <input
+                    type="text"
+                    id="watermark_text"
+                    name="watermark_text"
+                    maxlength="100"
+                    placeholder="Example: ImageKitBox"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="position">
+                    Watermark Position
+                </label>
+
+                <select
+                    id="position"
+                    name="position"
+                >
+
+                    <option
+                        value="bottom_right"
+                        selected
+                    >
+                        Bottom Right
+                    </option>
+
+                    <option value="bottom_left">
+                        Bottom Left
+                    </option>
+
+                    <option value="top_right">
+                        Top Right
+                    </option>
+
+                    <option value="top_left">
+                        Top Left
+                    </option>
+
+                    <option value="center">
+                        Center
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="opacity">
+                    Opacity:
+                    <span id="opacityValue">
+                        60%
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="opacity"
+                    name="opacity"
+                    min="10"
+                    max="100"
+                    value="60"
+                    step="5"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="font_size">
+                    Font Size:
+                    <span id="fontSizeValue">
+                        8%
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="font_size"
+                    name="font_size"
+                    min="2"
+                    max="30"
+                    value="8"
+                    step="1"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="text_color">
+                    Text Color
+                </label>
+
+                <input
+                    type="color"
+                    id="text_color"
+                    name="text_color"
+                    value="#ffffff"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="rotation">
+                    Rotation
+                </label>
+
+                <select
+                    id="rotation"
+                    name="rotation"
+                >
+
+                    <option
+                        value="0"
+                        selected
+                    >
+                        0°
+                    </option>
+
+                    <option value="45">
+                        45°
+                    </option>
+
+                    <option value="-45">
+                        -45°
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        name="outline"
+                        value="on"
+                        checked
+                    >
+
+                    Add black outline
+
+                </label>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        name="repeat_watermark"
+                        value="on"
+                    >
+
+                    Repeat watermark across the image
+
+                </label>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Add Watermark & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Add Watermarks to Images Online
+        </h2>
+
+        <p>
+            ImageKitBox makes it easy to add
+            customizable text watermarks to
+            your images directly from your browser.
+            Choose your text, position, opacity,
+            size, color and rotation, then
+            download the finished image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Customize Your Watermark
+        </h2>
+
+        <p>
+            You can place the watermark in
+            different areas of the image,
+            change its transparency and size,
+            choose a custom text color, add
+            an outline, rotate the watermark
+            or repeat it across the entire image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Add a Watermark
+        </h2>
+
+        <p>
+            Upload an image, enter the watermark
+            text, choose your preferred settings
+            and click the Add Watermark & Download
+            button. The processed image will be
+            downloaded to your device.
+        </p>
+
+        <p>
+            Maximum file size: 20 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const opacitySlider =
+        document.getElementById(
+            "opacity"
+        );
+
+    const opacityValue =
+        document.getElementById(
+            "opacityValue"
+        );
+
+    const fontSizeSlider =
+        document.getElementById(
+            "font_size"
+        );
+
+    const fontSizeValue =
+        document.getElementById(
+            "fontSizeValue"
+        );
+
+
+    if (
+        opacitySlider
+        && opacityValue
+    ) {
+
+        opacitySlider.addEventListener(
+            "input",
+            function () {
+
+                opacityValue.textContent =
+                    opacitySlider.value
+                    + "%";
+
+            }
+        );
+
+    }
+
+
+    if (
+        fontSizeSlider
+        && fontSizeValue
+    ) {
+
+        fontSizeSlider.addEventListener(
+            "input",
+            function () {
+
+                fontSizeValue.textContent =
+                    fontSizeSlider.value
+                    + "%";
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}
