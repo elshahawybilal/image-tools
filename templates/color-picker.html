@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Image Color Picker - Pick HEX and RGB Colors from Images
+{% endblock %}
+
+
+{% block description %}
+Pick colors from any image online for free. Upload an image, click anywhere on it, and instantly get the HEX and RGB color values with ImageKitBox.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            Image Color Picker
+        </h1>
+
+        <p>
+            Upload an image and click anywhere
+            on it to find the exact HEX and RGB
+            color values.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        <div class="form-group">
+
+            <label for="imageInput">
+                Choose Image
+            </label>
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+            >
+
+        </div>
+
+
+        <div
+            id="pickerArea"
+            style="display: none;"
+        >
+
+            <p>
+                Click anywhere on the image
+                to pick a color.
+            </p>
+
+            <div
+                style="
+                    max-width: 100%;
+                    overflow: auto;
+                    margin-top: 16px;
+                    text-align: center;
+                "
+            >
+                <canvas
+                    id="imageCanvas"
+                    style="
+                        max-width: 100%;
+                        height: auto;
+                        cursor: crosshair;
+                        border-radius: 8px;
+                    "
+                ></canvas>
+            </div>
+
+
+            <div
+                id="colorResult"
+                style="
+                    display: none;
+                    margin-top: 24px;
+                "
+            >
+
+                <div
+                    id="colorPreview"
+                    style="
+                        width: 100%;
+                        height: 70px;
+                        border-radius: 8px;
+                        border: 1px solid #ddd;
+                        margin-bottom: 16px;
+                    "
+                ></div>
+
+
+                <div class="form-group">
+
+                    <label for="hexValue">
+                        HEX
+                    </label>
+
+                    <input
+                        type="text"
+                        id="hexValue"
+                        readonly
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="rgbValue">
+                        RGB
+                    </label>
+
+                    <input
+                        type="text"
+                        id="rgbValue"
+                        readonly
+                    >
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="copyHexButton"
+                    class="primary-button"
+                >
+                    Copy HEX
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Pick Colors from Images Online
+        </h2>
+
+        <p>
+            ImageKitBox Image Color Picker lets
+            you upload an image and select any
+            pixel to instantly identify its color.
+            The tool displays both HEX and RGB
+            values.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Use the Image Color Picker
+        </h2>
+
+        <p>
+            Choose an image from your device.
+            Once the image appears, click the
+            exact area containing the color you
+            want. The HEX and RGB values will
+            appear below the image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Fast and Private Color Picking
+        </h2>
+
+        <p>
+            Color selection is performed directly
+            in your browser. Your image does not
+            need to be uploaded to the server
+            just to identify a pixel color.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imageInput =
+        document.getElementById(
+            "imageInput"
+        );
+
+    const pickerArea =
+        document.getElementById(
+            "pickerArea"
+        );
+
+    const canvas =
+        document.getElementById(
+            "imageCanvas"
+        );
+
+    const context =
+        canvas.getContext(
+            "2d",
+            {
+                willReadFrequently: true
+            }
+        );
+
+    const colorResult =
+        document.getElementById(
+            "colorResult"
+        );
+
+    const colorPreview =
+        document.getElementById(
+            "colorPreview"
+        );
+
+    const hexValue =
+        document.getElementById(
+            "hexValue"
+        );
+
+    const rgbValue =
+        document.getElementById(
+            "rgbValue"
+        );
+
+    const copyHexButton =
+        document.getElementById(
+            "copyHexButton"
+        );
+
+
+    function componentToHex(value) {
+
+        return value
+            .toString(16)
+            .padStart(2, "0")
+            .toUpperCase();
+
+    }
+
+
+    imageInput.addEventListener(
+        "change",
+        function () {
+
+            const file =
+                imageInput.files[0];
+
+            if (!file) {
+
+                pickerArea.style.display =
+                    "none";
+
+                colorResult.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                alert(
+                    "Please choose a valid image."
+                );
+
+                imageInput.value = "";
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function (event) {
+
+                    const image =
+                        new Image();
+
+
+                    image.onload =
+                        function () {
+
+                            canvas.width =
+                                image.naturalWidth;
+
+                            canvas.height =
+                                image.naturalHeight;
+
+                            context.clearRect(
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+                            context.drawImage(
+                                image,
+                                0,
+                                0
+                            );
+
+                            pickerArea.style.display =
+                                "block";
+
+                            colorResult.style.display =
+                                "none";
+
+                        };
+
+
+                    image.src =
+                        event.target.result;
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "click",
+        function (event) {
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+            const scaleX =
+                canvas.width
+                / rect.width;
+
+            const scaleY =
+                canvas.height
+                / rect.height;
+
+            const x =
+                Math.floor(
+                    (
+                        event.clientX
+                        - rect.left
+                    )
+                    * scaleX
+                );
+
+            const y =
+                Math.floor(
+                    (
+                        event.clientY
+                        - rect.top
+                    )
+                    * scaleY
+                );
+
+
+            const pixel =
+                context.getImageData(
+                    x,
+                    y,
+                    1,
+                    1
+                ).data;
+
+
+            const red = pixel[0];
+            const green = pixel[1];
+            const blue = pixel[2];
+
+
+            const hex =
+                "#"
+                + componentToHex(red)
+                + componentToHex(green)
+                + componentToHex(blue);
+
+
+            const rgb =
+                "rgb("
+                + red
+                + ", "
+                + green
+                + ", "
+                + blue
+                + ")";
+
+
+            hexValue.value =
+                hex;
+
+            rgbValue.value =
+                rgb;
+
+            colorPreview.style.backgroundColor =
+                hex;
+
+            colorResult.style.display =
+                "block";
+
+        }
+    );
+
+
+    copyHexButton.addEventListener(
+        "click",
+        async function () {
+
+            if (!hexValue.value) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    hexValue.value
+                );
+
+                const originalText =
+                    copyHexButton.textContent;
+
+                copyHexButton.textContent =
+                    "Copied!";
+
+
+                setTimeout(
+                    function () {
+
+                        copyHexButton.textContent =
+                            originalText;
+
+                    },
+                    1200
+                );
+
+            }
+
+            catch (error) {
+
+                hexValue.select();
+
+                document.execCommand(
+                    "copy"
+                );
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

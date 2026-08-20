@@ -1,4 +1,5 @@
 import io
+import math
 import os
 import re
 
@@ -399,6 +400,48 @@ def watermark_template(
     )
 
 
+def image_to_pdf_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="image-to-pdf.html",
+        context={
+            "page_title": "Image to PDF",
+            "error_message": error_message,
+        },
+    )
+
+
+def color_picker_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="color-picker.html",
+        context={
+            "page_title": "Image Color Picker",
+            "error_message": error_message,
+        },
+    )
+
+
+def collage_template(
+    request,
+    error_message=None,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="collage.html",
+        context={
+            "page_title": "Image Collage Maker",
+            "error_message": error_message,
+        },
+    )
+
+
 def get_compression_details(original_format):
     if original_format == "JPEG":
         return {
@@ -480,6 +523,15 @@ def sitemap():
     </url>
     <url>
         <loc>https://imagekitbox.com/watermark</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/image-to-pdf</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/color-picker</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/collage</loc>
     </url>
     <url>
         <loc>https://imagekitbox.com/about</loc>
@@ -646,6 +698,42 @@ def watermark_page(
     request: Request,
 ):
     return watermark_template(
+        request=request
+    )
+
+
+@app.get(
+    "/image-to-pdf",
+    response_class=HTMLResponse,
+)
+def image_to_pdf_page(
+    request: Request,
+):
+    return image_to_pdf_template(
+        request=request
+    )
+
+
+@app.get(
+    "/color-picker",
+    response_class=HTMLResponse,
+)
+def color_picker_page(
+    request: Request,
+):
+    return color_picker_template(
+        request=request
+    )
+
+
+@app.get(
+    "/collage",
+    response_class=HTMLResponse,
+)
+def collage_page(
+    request: Request,
+):
+    return collage_template(
         request=request
     )
 
@@ -1856,6 +1944,645 @@ async def add_watermark(
             "Content-Disposition": (
                 "attachment; "
                 f'filename="{download_name}"'
+            )
+        },
+    )
+
+@app.post(
+    "/image-to-pdf",
+    response_class=HTMLResponse,
+)
+async def convert_images_to_pdf(
+    request: Request,
+    images: list[UploadFile] = File(...),
+):
+    if not images:
+        return image_to_pdf_template(
+            request=request,
+            error_message="Please choose at least one image.",
+        )
+
+    if len(images) > 20:
+        return image_to_pdf_template(
+            request=request,
+            error_message="You can convert up to 20 images to one PDF at a time.",
+        )
+
+    pdf_images = []
+    total_size = 0
+    first_file_name = "images"
+    output_buffer = io.BytesIO()
+
+    try:
+        for index, uploaded_image in enumerate(images):
+            file_data = await uploaded_image.read(MAX_FILE_SIZE + 1)
+
+            if not file_data:
+                raise ValueError("empty")
+
+            if len(file_data) > MAX_FILE_SIZE:
+                raise OverflowError("single")
+
+            total_size += len(file_data)
+
+            if total_size > 100 * 1024 * 1024:
+                raise OverflowError("total")
+
+            with Image.open(io.BytesIO(file_data)) as test_image:
+                test_image.verify()
+
+            with Image.open(io.BytesIO(file_data)) as source_image:
+                source_image.seek(0)
+                source_image.load()
+
+                if index == 0:
+                    first_file_name = clean_file_name(uploaded_image.filename)
+
+                if (
+                    source_image.mode in ("RGBA", "LA")
+                    or (
+                        source_image.mode == "P"
+                        and "transparency" in source_image.info
+                    )
+                ):
+                    pdf_image = add_white_background(source_image)
+                else:
+                    pdf_image = source_image.convert("RGB")
+
+                pdf_images.append(pdf_image)
+
+        if not pdf_images:
+            raise ValueError("no_images")
+
+        pdf_images[0].save(
+            output_buffer,
+            format="PDF",
+            save_all=True,
+            append_images=pdf_images[1:],
+            resolution=100.0,
+        )
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        for pdf_image in pdf_images:
+            pdf_image.close()
+        return image_to_pdf_template(
+            request=request,
+            error_message="One of the selected files is not a valid image.",
+        )
+
+    except OverflowError as exc:
+        output_buffer.close()
+        for pdf_image in pdf_images:
+            pdf_image.close()
+        message = (
+            "Each image must be 20 MB or smaller."
+            if str(exc) == "single"
+            else "Maximum total upload size is 100 MB."
+        )
+        return image_to_pdf_template(
+            request=request,
+            error_message=message,
+        )
+
+    except ValueError:
+        output_buffer.close()
+        for pdf_image in pdf_images:
+            pdf_image.close()
+        return image_to_pdf_template(
+            request=request,
+            error_message="Please choose valid images.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        for pdf_image in pdf_images:
+            pdf_image.close()
+        return image_to_pdf_template(
+            request=request,
+            error_message="The PDF could not be created. Please try different images.",
+        )
+
+    for pdf_image in pdf_images:
+        pdf_image.close()
+
+    output_buffer.seek(0)
+    download_name = f"{first_file_name}_images.pdf"
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": (
+                "attachment; "
+                f'filename="{download_name}"'
+            )
+        },
+    )
+
+def resize_to_width(
+    image,
+    target_width,
+):
+    source = image.convert("RGBA")
+
+    new_height = max(
+        1,
+        round(
+            source.height
+            * target_width
+            / source.width
+        ),
+    )
+
+    resized = source.resize(
+        (
+            target_width,
+            new_height,
+        ),
+        Image.Resampling.LANCZOS,
+    )
+
+    source.close()
+
+    return resized
+
+
+def resize_to_height(
+    image,
+    target_height,
+):
+    source = image.convert("RGBA")
+
+    new_width = max(
+        1,
+        round(
+            source.width
+            * target_height
+            / source.height
+        ),
+    )
+
+    resized = source.resize(
+        (
+            new_width,
+            target_height,
+        ),
+        Image.Resampling.LANCZOS,
+    )
+
+    source.close()
+
+    return resized
+
+
+def fit_image_to_box(
+    image,
+    box_width,
+    box_height,
+):
+    source = image.convert("RGBA")
+
+    scale = min(
+        box_width / source.width,
+        box_height / source.height,
+    )
+
+    new_width = max(
+        1,
+        round(source.width * scale),
+    )
+
+    new_height = max(
+        1,
+        round(source.height * scale),
+    )
+
+    resized = source.resize(
+        (
+            new_width,
+            new_height,
+        ),
+        Image.Resampling.LANCZOS,
+    )
+
+    source.close()
+
+    return resized
+
+
+@app.post(
+    "/collage",
+    response_class=HTMLResponse,
+)
+async def create_collage(
+    request: Request,
+    images: list[UploadFile] = File(...),
+    layout: str = Form("grid"),
+    spacing: int = Form(0),
+    background_color: str = Form("#ffffff"),
+):
+    if not images or len(images) < 2:
+        return collage_template(
+            request=request,
+            error_message=(
+                "Please choose at least two images."
+            ),
+        )
+
+    if len(images) > 9:
+        return collage_template(
+            request=request,
+            error_message=(
+                "You can use up to 9 images "
+                "in one collage."
+            ),
+        )
+
+    if layout not in {
+        "grid",
+        "horizontal",
+        "vertical",
+    }:
+        return collage_template(
+            request=request,
+            error_message=(
+                "Please choose a valid collage layout."
+            ),
+        )
+
+    if spacing < 0 or spacing > 30:
+        return collage_template(
+            request=request,
+            error_message=(
+                "Spacing must be between "
+                "0 and 30 pixels."
+            ),
+        )
+
+    if not re.fullmatch(
+        r"#[0-9A-Fa-f]{6}",
+        background_color or "",
+    ):
+        background_color = "#ffffff"
+
+    loaded_images = []
+    prepared_images = []
+    total_size = 0
+    output_buffer = io.BytesIO()
+    collage = None
+
+    try:
+        for uploaded_image in images:
+            file_data = await uploaded_image.read(
+                MAX_FILE_SIZE + 1
+            )
+
+            if not file_data:
+                raise ValueError("empty")
+
+            if len(file_data) > MAX_FILE_SIZE:
+                raise OverflowError("single")
+
+            total_size += len(file_data)
+
+            if total_size > 80 * 1024 * 1024:
+                raise OverflowError("total")
+
+            with Image.open(
+                io.BytesIO(file_data)
+            ) as test_image:
+                test_image.verify()
+
+            with Image.open(
+                io.BytesIO(file_data)
+            ) as source_image:
+                source_image.seek(0)
+                source_image.load()
+
+                loaded_images.append(
+                    source_image.convert("RGBA")
+                )
+
+        red = int(background_color[1:3], 16)
+        green = int(background_color[3:5], 16)
+        blue = int(background_color[5:7], 16)
+
+        background = (
+            red,
+            green,
+            blue,
+        )
+
+        count = len(loaded_images)
+
+        if layout == "vertical":
+            target_width = min(
+                1200,
+                max(
+                    image.width
+                    for image in loaded_images
+                ),
+            )
+
+            prepared_images = [
+                resize_to_width(
+                    image,
+                    target_width,
+                )
+                for image in loaded_images
+            ]
+
+            canvas_width = (
+                target_width
+                + spacing * 2
+            )
+
+            canvas_height = (
+                sum(
+                    image.height
+                    for image in prepared_images
+                )
+                + spacing * (count + 1)
+            )
+
+            collage = Image.new(
+                "RGB",
+                (
+                    canvas_width,
+                    canvas_height,
+                ),
+                background,
+            )
+
+            y = spacing
+
+            for image in prepared_images:
+                x = (
+                    canvas_width
+                    - image.width
+                ) // 2
+
+                collage.paste(
+                    image,
+                    (x, y),
+                    image,
+                )
+
+                y += (
+                    image.height
+                    + spacing
+                )
+
+        elif layout == "horizontal":
+            target_height = min(
+                900,
+                max(
+                    image.height
+                    for image in loaded_images
+                ),
+            )
+
+            prepared_images = [
+                resize_to_height(
+                    image,
+                    target_height,
+                )
+                for image in loaded_images
+            ]
+
+            canvas_width = (
+                sum(
+                    image.width
+                    for image in prepared_images
+                )
+                + spacing * (count + 1)
+            )
+
+            canvas_height = (
+                target_height
+                + spacing * 2
+            )
+
+            collage = Image.new(
+                "RGB",
+                (
+                    canvas_width,
+                    canvas_height,
+                ),
+                background,
+            )
+
+            x = spacing
+
+            for image in prepared_images:
+                y = (
+                    canvas_height
+                    - image.height
+                ) // 2
+
+                collage.paste(
+                    image,
+                    (x, y),
+                    image,
+                )
+
+                x += (
+                    image.width
+                    + spacing
+                )
+
+        else:
+            columns = math.ceil(
+                math.sqrt(count)
+            )
+
+            rows = math.ceil(
+                count / columns
+            )
+
+            cell_width = 600
+            cell_height = 600
+
+            prepared_images = [
+                fit_image_to_box(
+                    image,
+                    cell_width,
+                    cell_height,
+                )
+                for image in loaded_images
+            ]
+
+            row_heights = []
+
+            for row in range(rows):
+                row_start = row * columns
+                row_end = min(
+                    row_start + columns,
+                    count,
+                )
+
+                row_heights.append(
+                    max(
+                        image.height
+                        for image
+                        in prepared_images[
+                            row_start:row_end
+                        ]
+                    )
+                )
+
+            canvas_width = (
+                columns * cell_width
+                + spacing * (columns + 1)
+            )
+
+            canvas_height = (
+                sum(row_heights)
+                + spacing * (rows + 1)
+            )
+
+            collage = Image.new(
+                "RGB",
+                (
+                    canvas_width,
+                    canvas_height,
+                ),
+                background,
+            )
+
+            y = spacing
+
+            for row in range(rows):
+                row_start = row * columns
+                row_end = min(
+                    row_start + columns,
+                    count,
+                )
+
+                current_row = (
+                    prepared_images[
+                        row_start:row_end
+                    ]
+                )
+
+                row_height = row_heights[row]
+                x = spacing
+
+                for image in current_row:
+                    image_x = (
+                        x
+                        + (
+                            cell_width
+                            - image.width
+                        ) // 2
+                    )
+
+                    image_y = (
+                        y
+                        + (
+                            row_height
+                            - image.height
+                        ) // 2
+                    )
+
+                    collage.paste(
+                        image,
+                        (
+                            image_x,
+                            image_y,
+                        ),
+                        image,
+                    )
+
+                    x += (
+                        cell_width
+                        + spacing
+                    )
+
+                y += (
+                    row_height
+                    + spacing
+                )
+
+        collage.save(
+            output_buffer,
+            format="JPEG",
+            quality=95,
+            optimize=True,
+            progressive=True,
+        )
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+
+        return collage_template(
+            request=request,
+            error_message=(
+                "One of the selected files "
+                "is not a valid image."
+            ),
+        )
+
+    except OverflowError as exc:
+        output_buffer.close()
+
+        if str(exc) == "single":
+            error_message = (
+                "Each image must be 20 MB "
+                "or smaller."
+            )
+        else:
+            error_message = (
+                "The selected images are too large "
+                "together. Maximum total upload "
+                "size is 80 MB."
+            )
+
+        return collage_template(
+            request=request,
+            error_message=error_message,
+        )
+
+    except ValueError:
+        output_buffer.close()
+
+        return collage_template(
+            request=request,
+            error_message=(
+                "Please choose valid images."
+            ),
+        )
+
+    except Exception:
+        output_buffer.close()
+
+        return collage_template(
+            request=request,
+            error_message=(
+                "The collage could not be created. "
+                "Please try different images."
+            ),
+        )
+
+    finally:
+        if collage is not None:
+            collage.close()
+
+        for image in prepared_images:
+            image.close()
+
+        for image in loaded_images:
+            image.close()
+
+    output_buffer.seek(0)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": (
+                'attachment; filename="image_collage.jpg"'
             )
         },
     )

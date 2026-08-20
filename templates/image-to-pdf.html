@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Image to PDF Converter - Convert Images to PDF Online
+{% endblock %}
+
+
+{% block description %}
+Convert JPG, PNG, WebP and other images to PDF online for free. Upload multiple images and combine them into one PDF file with ImageKitBox.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            Image to PDF
+        </h1>
+
+        <p>
+            Convert multiple images into one PDF
+            file quickly and easily.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/image-to-pdf"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="images">
+                    Choose Images
+                </label>
+
+                <input
+                    type="file"
+                    id="images"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    required
+                >
+
+                <p id="selectedFiles">
+                    You can select up to 20 images.
+                </p>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Convert to PDF & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert Images to PDF Online
+        </h2>
+
+        <p>
+            ImageKitBox lets you combine multiple
+            images into a single PDF file directly
+            from your browser. Select your images
+            and download the finished PDF in just
+            a few steps.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Multiple Images in One PDF
+        </h2>
+
+        <p>
+            Select up to 20 images at once.
+            Each selected image becomes a page
+            in the PDF, following the order in
+            which the files are selected.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Convert Images to PDF
+        </h2>
+
+        <p>
+            Choose one or more images, click
+            Convert to PDF & Download, and
+            ImageKitBox will combine the selected
+            images into one downloadable PDF file.
+        </p>
+
+        <p>
+            Maximum size per image: 20 MB.
+            Maximum total upload size: 100 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imagesInput =
+        document.getElementById(
+            "images"
+        );
+
+    const selectedFiles =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    if (
+        imagesInput
+        && selectedFiles
+    ) {
+
+        imagesInput.addEventListener(
+            "change",
+            function () {
+
+                const count =
+                    imagesInput.files.length;
+
+                if (count === 0) {
+
+                    selectedFiles.textContent =
+                        "You can select up to 20 images.";
+
+                    return;
+
+                }
+
+                selectedFiles.textContent =
+                    count
+                    + (
+                        count === 1
+                        ? " image selected."
+                        : " images selected."
+                    );
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}
