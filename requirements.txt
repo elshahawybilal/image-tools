@@ -3,3 +3,5 @@ uvicorn
 jinja2
 python-multipart
 pillow
+PyMuPDF
+pillow-heif
