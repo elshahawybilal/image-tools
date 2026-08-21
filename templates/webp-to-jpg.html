@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free WebP to JPG Converter - Convert WebP Images to JPG Online
+{% endblock %}
+
+
+{% block description %}
+Convert WebP images to JPG online for free with ImageKitBox. Upload a WebP image, choose JPG quality, and download the converted JPG instantly.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            WebP to JPG
+        </h1>
+
+        <p>
+            Convert WebP images to JPG
+            quickly and easily online.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/webp-to-jpg"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Choose WebP Image
+                </label>
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept=".webp,image/webp"
+                    required
+                >
+
+                <p id="selectedFile">
+                    Maximum file size: 20 MB.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="quality">
+                    JPG Quality:
+                    <span id="qualityValue">
+                        90
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="quality"
+                    name="quality"
+                    min="60"
+                    max="100"
+                    value="90"
+                    step="1"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Convert to JPG & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert WebP to JPG Online
+        </h2>
+
+        <p>
+            ImageKitBox WebP to JPG Converter
+            turns WebP images into widely
+            supported JPG files directly
+            in your browser.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Why Convert WebP to JPG?
+        </h2>
+
+        <p>
+            JPG is supported by almost every
+            image viewer, editor and website.
+            Converting WebP to JPG can make
+            your images easier to open,
+            edit, upload and share.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Choose JPG Quality
+        </h2>
+
+        <p>
+            Adjust the JPG quality from 60
+            to 100. Higher values preserve
+            more image detail, while lower
+            values can produce smaller files.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Convert WebP to JPG
+        </h2>
+
+        <p>
+            Choose a WebP image, select your
+            preferred JPG quality, then click
+            Convert to JPG & Download.
+        </p>
+
+        <p>
+            Maximum file size: 20 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imageInput =
+        document.getElementById("image");
+
+    const selectedFile =
+        document.getElementById(
+            "selectedFile"
+        );
+
+    const qualitySlider =
+        document.getElementById(
+            "quality"
+        );
+
+    const qualityValue =
+        document.getElementById(
+            "qualityValue"
+        );
+
+
+    if (imageInput && selectedFile) {
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    imageInput.files[0];
+
+                if (!file) {
+
+                    selectedFile.textContent =
+                        "Maximum file size: 20 MB.";
+
+                    return;
+
+                }
+
+                selectedFile.textContent =
+                    file.name;
+
+            }
+        );
+
+    }
+
+
+    if (
+        qualitySlider
+        && qualityValue
+    ) {
+
+        qualitySlider.addEventListener(
+            "input",
+            function () {
+
+                qualityValue.textContent =
+                    qualitySlider.value;
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

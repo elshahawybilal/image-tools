@@ -2,12 +2,27 @@
 
 
 {% block title %}
-Free Online Image Tools - Convert, Resize, Compress, Crop, Rotate, Flip, Watermark, Image to PDF, Color Picker and Collage Maker
+Free Online Image Tools - Convert, Resize, Compress, Crop, Watermark, PDF and More
 {% endblock %}
 
 
 {% block description %}
-Free online image tools to convert, resize, compress, crop, rotate, flip, watermark images, convert images to PDF, pick HEX and RGB colors, and create image collages quickly and easily with ImageKitBox.
+Free online image tools to convert, resize, compress, crop, rotate, flip and watermark images, convert images to PDF, convert PDF pages to PNG or JPG, convert HEIC and HEIF photos to JPG, convert WebP images to JPG, convert JPG and JPEG images to PNG, merge multiple images vertically or horizontally, add custom text to images, pick colors, and create collages with ImageKitBox.
+{% endblock %}
+
+
+{% block extra_head %}
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ImageKitBox",
+    "url": "https://imagekitbox.com/",
+    "description": "Free online image tools for converting, resizing, compressing, cropping, watermarking, merging, editing images and working with PDF files."
+}
+</script>
+
 {% endblock %}
 
 
@@ -30,8 +45,9 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
             rotate, flip and watermark your images,
             combine images into a PDF, pick
             HEX and RGB colors, or create
-            image collages quickly and easily
-            from your browser.
+            image collages, or convert PDF
+            pages to PNG or JPG images
+            quickly and easily from your browser.
             No complicated software required.
         </p>
 
@@ -48,20 +64,27 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
 
     <section class="section-heading">
-
-        <h2>
-            Online Image Tools
-        </h2>
-
-        <p>
-            Choose the image tool you need.
-        </p>
-
+        <h2>Online Image Tools</h2>
+        <p>Browse tools by category.</p>
     </section>
 
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>Convert & Format</h2>
+                <p>Convert images between popular file formats.</p>
+            </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous Convert & Format tools"
+                    data-target="tool-row-1">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next Convert & Format tools"
+                    data-target="tool-row-1">›</button>
+            </div>
+        </div>
 
-    <section class="tools-grid">
-
+        <div class="category-viewport"><div class="category-slider" id="tool-row-1">
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -87,7 +110,100 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
         </article>
 
+        <article class="tool-card">
 
+            <div class="tool-icon">
+                HEIC
+            </div>
+
+            <h2>
+                HEIC to JPG
+            </h2>
+
+            <p>
+                Convert HEIC and HEIF photos
+                to widely supported JPG images
+                with adjustable output quality.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/heic-to-jpg"
+            >
+                Open HEIC to JPG
+            </a>
+
+        </article>
+
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                WebP
+            </div>
+
+            <h2>
+                WebP to JPG
+            </h2>
+
+            <p>
+                Convert WebP images to widely
+                supported JPG files with
+                adjustable output quality.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/webp-to-jpg"
+            >
+                Open WebP to JPG
+            </a>
+
+        </article>
+
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                JPG→
+            </div>
+
+            <h2>
+                JPG to PNG
+            </h2>
+
+            <p>
+                Convert JPG and JPEG images
+                to high-quality PNG files
+                quickly and easily online.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/jpg-to-png"
+            >
+                Open JPG to PNG
+            </a>
+
+        </article>
+        </div></div>
+    </section>
+
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>Resize & Optimize</h2>
+                <p>Resize images and reduce their file size.</p>
+            </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous Resize & Optimize tools"
+                    data-target="tool-row-2">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next Resize & Optimize tools"
+                    data-target="tool-row-2">›</button>
+            </div>
+        </div>
+
+        <div class="category-viewport"><div class="category-slider" id="tool-row-2">
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -113,7 +229,6 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
         </article>
 
-
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -138,8 +253,26 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
             </a>
 
         </article>
+        </div></div>
+    </section>
 
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>Edit Images</h2>
+                <p>Crop, rotate, watermark and add text to images.</p>
+            </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous Edit Images tools"
+                    data-target="tool-row-3">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next Edit Images tools"
+                    data-target="tool-row-3">›</button>
+            </div>
+        </div>
 
+        <div class="category-viewport"><div class="category-slider" id="tool-row-3">
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -164,7 +297,6 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
             </a>
 
         </article>
-
 
         <article class="tool-card">
 
@@ -191,7 +323,6 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
         </article>
 
-
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -217,59 +348,50 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
         </article>
 
-
         <article class="tool-card">
 
             <div class="tool-icon">
-                PDF
+                T
             </div>
 
             <h2>
-                Image to PDF
+                Add Text to Image
             </h2>
 
             <p>
-                Combine multiple images into
-                one PDF file quickly and
-                download the finished document.
+                Add custom text to your image
+                with adjustable size, color,
+                opacity, position and rotation.
             </p>
 
             <a
                 class="primary-button"
-                href="/image-to-pdf"
+                href="/add-text"
             >
-                Open Image to PDF
+                Open Add Text
             </a>
 
         </article>
+        </div></div>
+    </section>
 
-
-        <article class="tool-card">
-
-            <div class="tool-icon">
-                🎨
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>Create & Combine</h2>
+                <p>Combine images into collages or one merged image.</p>
             </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous Create & Combine tools"
+                    data-target="tool-row-4">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next Create & Combine tools"
+                    data-target="tool-row-4">›</button>
+            </div>
+        </div>
 
-            <h2>
-                Image Color Picker
-            </h2>
-
-            <p>
-                Upload an image and click
-                anywhere on it to instantly
-                find its HEX and RGB color.
-            </p>
-
-            <a
-                class="primary-button"
-                href="/color-picker"
-            >
-                Open Color Picker
-            </a>
-
-        </article>
-
-
+        <div class="category-viewport"><div class="category-slider" id="tool-row-4">
         <article class="tool-card">
 
             <div class="tool-icon">
@@ -295,8 +417,145 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 
         </article>
 
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                ⇄
+            </div>
+
+            <h2>
+                Merge Images
+            </h2>
+
+            <p>
+                Combine multiple images into
+                one vertical or horizontal image
+                with custom spacing and background.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/merge-images"
+            >
+                Open Merge Images
+            </a>
+
+        </article>
+        </div></div>
     </section>
 
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>PDF Tools</h2>
+                <p>Convert between images and PDF files.</p>
+            </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous PDF Tools tools"
+                    data-target="tool-row-5">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next PDF Tools tools"
+                    data-target="tool-row-5">›</button>
+            </div>
+        </div>
+
+        <div class="category-viewport"><div class="category-slider" id="tool-row-5">
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                PDF
+            </div>
+
+            <h2>
+                Image to PDF
+            </h2>
+
+            <p>
+                Combine multiple images into
+                one PDF file quickly and
+                download the finished document.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/image-to-pdf"
+            >
+                Open Image to PDF
+            </a>
+
+        </article>
+
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                PDF→
+            </div>
+
+            <h2>
+                PDF to Images
+            </h2>
+
+            <p>
+                Convert every page of a PDF
+                into PNG or JPG images and
+                download them in one ZIP file.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/pdf-to-images"
+            >
+                Open PDF to Images
+            </a>
+
+        </article>
+        </div></div>
+    </section>
+
+    <section class="tool-category">
+        <div class="category-heading">
+            <div>
+                <h2>Color Tools</h2>
+                <p>Find exact colors from any image.</p>
+            </div>
+            <div class="category-controls">
+                <button class="category-arrow category-arrow-left"
+                    type="button" aria-label="Previous Color Tools tools"
+                    data-target="tool-row-6">‹</button>
+                <button class="category-arrow category-arrow-right"
+                    type="button" aria-label="Next Color Tools tools"
+                    data-target="tool-row-6">›</button>
+            </div>
+        </div>
+
+        <div class="category-viewport"><div class="category-slider" id="tool-row-6">
+        <article class="tool-card">
+
+            <div class="tool-icon">
+                🎨
+            </div>
+
+            <h2>
+                Image Color Picker
+            </h2>
+
+            <p>
+                Upload an image and click
+                anywhere on it to instantly
+                find its HEX and RGB color.
+            </p>
+
+            <a
+                class="primary-button"
+                href="/color-picker"
+            >
+                Open Color Picker
+            </a>
+
+        </article>
+        </div></div>
+    </section>
 
     <section class="info-section">
 
@@ -312,9 +571,15 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
             flip and watermark images, convert
             multiple images into one PDF, pick
             HEX and RGB colors, or create image
-            collages directly through your web browser
-            without installing additional
-            image editing software.
+            collages, convert PDF pages
+            into PNG or JPG images, or convert
+            HEIC and HEIF photos to JPG, or convert
+            WebP images to JPG, or convert
+            JPG and JPEG images to PNG, or merge
+            multiple images vertically or horizontally,
+            or add custom text to images
+            through your web browser without
+            installing additional software.
         </p>
 
         <p>
@@ -509,6 +774,126 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
     </section>
 
 
+    <section class="info-section">
+
+        <h2>
+            Convert PDF Pages to Images Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/pdf-to-images">
+                PDF to Images
+            </a>
+            tool to convert each page of a PDF
+            into a separate PNG or JPG image.
+            Choose the image quality and download
+            all converted pages together in one
+            ZIP file.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert HEIC to JPG Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/heic-to-jpg">
+                HEIC to JPG
+            </a>
+            tool to convert HEIC and HEIF photos
+            into widely supported JPG images.
+            Choose your preferred JPG quality
+            and download the converted image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert WebP to JPG Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/webp-to-jpg">
+                WebP to JPG
+            </a>
+            tool to convert WebP images into
+            widely supported JPG files.
+            Choose your preferred JPG quality
+            and download the converted image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert JPG to PNG Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/jpg-to-png">
+                JPG to PNG
+            </a>
+            tool to convert JPG and JPEG images
+            into high-quality PNG files quickly
+            and download the converted image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Merge Images Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/merge-images">
+                Merge Images
+            </a>
+            tool to combine multiple images into
+            one vertical or horizontal image.
+            Adjust the spacing and background color,
+            then download the result as PNG or JPG.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Add Text to Images Online
+        </h2>
+
+        <p>
+            Use the
+            <a href="/add-text">
+                Add Text to Image
+            </a>
+            tool to place custom text on your images.
+            Choose the text size, color, opacity,
+            position, outline and rotation, then
+            download the edited image.
+        </p>
+
+    </section>
+
+
     <section class="features-section">
 
         <div class="feature-item">
@@ -605,7 +990,15 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
             your images, combine multiple
             images into one PDF file, pick
             HEX and RGB colors from images,
-            and create image collages.
+            create image collages, convert
+            PDF pages into PNG or JPG images,
+            convert HEIC or HEIF photos
+            into JPG images, and convert WebP
+            images into JPG files, and convert
+            JPG or JPEG images into PNG files,
+            merge multiple images vertically
+            or horizontally into one image, and add
+            customizable text to your images.
             More image tools will be added
             over time.
         </p>
@@ -624,3 +1017,43 @@ Free online image tools to convert, resize, compress, crop, rotate, flip, waterm
 </main>
 
 {% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".category-arrow").forEach(function (arrow) {
+        arrow.addEventListener("click", function () {
+            const slider = document.getElementById(arrow.dataset.target);
+            if (!slider) return;
+
+            const firstCard = slider.querySelector(".tool-card");
+            if (!firstCard) return;
+
+            const gap = 24;
+            const width = window.innerWidth;
+
+            let cardsPerStep = 3;
+
+            if (width <= 700) {
+                cardsPerStep = 1;
+            } else if (width <= 950) {
+                cardsPerStep = 2;
+            }
+
+            const amount =
+                (firstCard.getBoundingClientRect().width + gap)
+                * cardsPerStep;
+
+            slider.scrollBy({
+                left: arrow.classList.contains("category-arrow-left")
+                    ? -amount
+                    : amount,
+                behavior: "smooth"
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+

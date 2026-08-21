@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free Merge Images Tool - Combine Images Online
+{% endblock %}
+
+
+{% block description %}
+Merge multiple images online for free with ImageKitBox. Combine images vertically or horizontally, adjust spacing and background color, and download as PNG or JPG.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            Merge Images
+        </h1>
+
+        <p>
+            Combine multiple images into
+            one long or wide image.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/merge-images"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="images">
+                    Choose Images
+                </label>
+
+                <input
+                    type="file"
+                    id="images"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    required
+                >
+
+                <p id="selectedFiles">
+                    Select between 2 and 10 images.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="direction">
+                    Merge Direction
+                </label>
+
+                <select
+                    id="direction"
+                    name="direction"
+                >
+
+                    <option
+                        value="vertical"
+                        selected
+                    >
+                        Vertical
+                    </option>
+
+                    <option value="horizontal">
+                        Horizontal
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="spacing">
+                    Spacing:
+                    <span id="spacingValue">
+                        0 px
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="spacing"
+                    name="spacing"
+                    min="0"
+                    max="100"
+                    value="0"
+                    step="1"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="background_color">
+                    Background Color
+                </label>
+
+                <input
+                    type="color"
+                    id="background_color"
+                    name="background_color"
+                    value="#ffffff"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="output_format">
+                    Output Format
+                </label>
+
+                <select
+                    id="output_format"
+                    name="output_format"
+                >
+
+                    <option
+                        value="PNG"
+                        selected
+                    >
+                        PNG
+                    </option>
+
+                    <option value="JPG">
+                        JPG
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Merge Images & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Merge Images Online
+        </h2>
+
+        <p>
+            ImageKitBox Merge Images lets you
+            combine multiple images into one
+            downloadable image without installing
+            additional software.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Vertical or Horizontal Merge
+        </h2>
+
+        <p>
+            Choose Vertical to place images
+            one below another, or Horizontal
+            to place them side by side.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Customize Spacing and Background
+        </h2>
+
+        <p>
+            Adjust the spacing between images
+            and choose the background color
+            that fits your final image.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            PNG or JPG Output
+        </h2>
+
+        <p>
+            Download the merged image as PNG
+            for high-quality lossless output
+            or JPG for a smaller file size.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Merge Images
+        </h2>
+
+        <p>
+            Select between 2 and 10 images,
+            choose the merge direction,
+            adjust spacing and background color,
+            select PNG or JPG, then click
+            Merge Images & Download.
+        </p>
+
+        <p>
+            Maximum size per image: 20 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imagesInput =
+        document.getElementById(
+            "images"
+        );
+
+    const selectedFiles =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+    const spacingSlider =
+        document.getElementById(
+            "spacing"
+        );
+
+    const spacingValue =
+        document.getElementById(
+            "spacingValue"
+        );
+
+
+    if (
+        imagesInput
+        && selectedFiles
+    ) {
+
+        imagesInput.addEventListener(
+            "change",
+            function () {
+
+                const count =
+                    imagesInput.files.length;
+
+                if (count === 0) {
+
+                    selectedFiles.textContent =
+                        "Select between 2 and 10 images.";
+
+                    return;
+
+                }
+
+                selectedFiles.textContent =
+                    count
+                    + (
+                        count === 1
+                        ? " image selected."
+                        : " images selected."
+                    );
+
+            }
+        );
+
+    }
+
+
+    if (
+        spacingSlider
+        && spacingValue
+    ) {
+
+        spacingSlider.addEventListener(
+            "input",
+            function () {
+
+                spacingValue.textContent =
+                    spacingSlider.value
+                    + " px";
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

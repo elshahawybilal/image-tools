@@ -2,12 +2,20 @@ import io
 import math
 import os
 import re
+import zipfile
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError, features
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+    HEIF_AVAILABLE = True
+except ImportError:
+    HEIF_AVAILABLE = False
+import fitz
 
 
 app = FastAPI(
@@ -442,6 +450,72 @@ def collage_template(
     )
 
 
+def pdf_to_images_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="pdf-to-images.html",
+        context={
+            "page_title": "PDF to Images",
+            "error_message": error_message,
+        },
+    )
+
+
+def heic_to_jpg_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="heic-to-jpg.html",
+        context={
+            "page_title": "HEIC to JPG",
+            "error_message": error_message,
+        },
+    )
+
+
+def webp_to_jpg_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="webp-to-jpg.html",
+        context={
+            "page_title": "WebP to JPG",
+            "error_message": error_message,
+        },
+    )
+
+
+def jpg_to_png_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="jpg-to-png.html",
+        context={
+            "page_title": "JPG to PNG",
+            "error_message": error_message,
+        },
+    )
+
+
+def merge_images_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="merge-images.html",
+        context={
+            "page_title": "Merge Images",
+            "error_message": error_message,
+        },
+    )
+
+
+def add_text_template(request, error_message=None):
+    return templates.TemplateResponse(
+        request=request,
+        name="add-text.html",
+        context={
+            "page_title": "Add Text to Image",
+            "error_message": error_message,
+        },
+    )
+
+
 def get_compression_details(original_format):
     if original_format == "JPEG":
         return {
@@ -532,6 +606,24 @@ def sitemap():
     </url>
     <url>
         <loc>https://imagekitbox.com/collage</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/pdf-to-images</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/heic-to-jpg</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/webp-to-jpg</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/jpg-to-png</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/merge-images</loc>
+    </url>
+    <url>
+        <loc>https://imagekitbox.com/add-text</loc>
     </url>
     <url>
         <loc>https://imagekitbox.com/about</loc>
@@ -736,6 +828,54 @@ def collage_page(
     return collage_template(
         request=request
     )
+
+
+@app.get(
+    "/pdf-to-images",
+    response_class=HTMLResponse,
+)
+def pdf_to_images_page(request: Request):
+    return pdf_to_images_template(request=request)
+
+
+@app.get(
+    "/heic-to-jpg",
+    response_class=HTMLResponse,
+)
+def heic_to_jpg_page(request: Request):
+    return heic_to_jpg_template(request=request)
+
+
+@app.get(
+    "/webp-to-jpg",
+    response_class=HTMLResponse,
+)
+def webp_to_jpg_page(request: Request):
+    return webp_to_jpg_template(request=request)
+
+
+@app.get(
+    "/jpg-to-png",
+    response_class=HTMLResponse,
+)
+def jpg_to_png_page(request: Request):
+    return jpg_to_png_template(request=request)
+
+
+@app.get(
+    "/merge-images",
+    response_class=HTMLResponse,
+)
+def merge_images_page(request: Request):
+    return merge_images_template(request=request)
+
+
+@app.get(
+    "/add-text",
+    response_class=HTMLResponse,
+)
+def add_text_page(request: Request):
+    return add_text_template(request=request)
 
 
 @app.get(
@@ -2583,6 +2723,866 @@ async def create_collage(
         headers={
             "Content-Disposition": (
                 'attachment; filename="image_collage.jpg"'
+            )
+        },
+    )
+
+@app.post("/pdf-to-images", response_class=HTMLResponse)
+async def convert_pdf_to_images(
+    request: Request,
+    pdf_file: UploadFile = File(...),
+    output_format: str = Form("PNG"),
+    dpi: int = Form(150),
+):
+    output_format = output_format.strip().upper()
+
+    if output_format not in {"PNG", "JPG"}:
+        return pdf_to_images_template(
+            request=request,
+            error_message="Please choose PNG or JPG.",
+        )
+
+    if dpi not in {100, 150, 200}:
+        return pdf_to_images_template(
+            request=request,
+            error_message="Please choose a valid image quality.",
+        )
+
+    file_data = await pdf_file.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return pdf_to_images_template(
+            request=request,
+            error_message="Please choose a PDF file.",
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return pdf_to_images_template(
+            request=request,
+            error_message="The PDF is too large. Maximum file size is 20 MB.",
+        )
+
+    if not file_data.startswith(b"%PDF"):
+        return pdf_to_images_template(
+            request=request,
+            error_message="The selected file is not a valid PDF.",
+        )
+
+    output_buffer = io.BytesIO()
+    document = None
+
+    try:
+        document = fitz.open(stream=file_data, filetype="pdf")
+
+        if document.page_count < 1:
+            raise ValueError("empty_pdf")
+
+        if document.page_count > 50:
+            return pdf_to_images_template(
+                request=request,
+                error_message="Maximum PDF length is 50 pages.",
+            )
+
+        matrix = fitz.Matrix(dpi / 72.0, dpi / 72.0)
+        extension = "png" if output_format == "PNG" else "jpg"
+        safe_name = clean_file_name(pdf_file.filename)
+
+        with zipfile.ZipFile(
+            output_buffer,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+        ) as zip_file:
+            for page_number in range(document.page_count):
+                page = document.load_page(page_number)
+                pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+
+                if output_format == "PNG":
+                    image_bytes = pixmap.tobytes("png")
+                else:
+                    image_bytes = pixmap.tobytes(
+                        "jpg",
+                        jpg_quality=95,
+                    )
+
+                zip_file.writestr(
+                    f"{safe_name}_page_{page_number + 1:03d}.{extension}",
+                    image_bytes,
+                )
+
+    except (fitz.FileDataError, ValueError):
+        output_buffer.close()
+        return pdf_to_images_template(
+            request=request,
+            error_message="The PDF could not be read. Please try another PDF.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        return pdf_to_images_template(
+            request=request,
+            error_message="The PDF could not be converted. Please try another PDF.",
+        )
+
+    finally:
+        if document is not None:
+            document.close()
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(pdf_file.filename)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{safe_name}_images.zip"'
+            )
+        },
+    )
+
+@app.post("/heic-to-jpg", response_class=HTMLResponse)
+async def convert_heic_to_jpg(
+    request: Request,
+    image: UploadFile = File(...),
+    quality: int = Form(90),
+):
+    if not HEIF_AVAILABLE:
+        return heic_to_jpg_template(
+            request=request,
+            error_message="HEIC support is not available on this server.",
+        )
+
+    if quality < 60 or quality > 100:
+        return heic_to_jpg_template(
+            request=request,
+            error_message="Quality must be between 60 and 100.",
+        )
+
+    file_name = (image.filename or "").lower()
+    if not file_name.endswith((".heic", ".heif")):
+        return heic_to_jpg_template(
+            request=request,
+            error_message="Please choose a HEIC or HEIF image.",
+        )
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return heic_to_jpg_template(
+            request=request,
+            error_message="Please choose a HEIC image.",
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return heic_to_jpg_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            if (
+                source_image.mode in ("RGBA", "LA")
+                or (
+                    source_image.mode == "P"
+                    and "transparency" in source_image.info
+                )
+            ):
+                final_image = add_white_background(source_image)
+            else:
+                final_image = source_image.convert("RGB")
+
+            try:
+                final_image.save(
+                    output_buffer,
+                    format="JPEG",
+                    quality=quality,
+                    optimize=True,
+                    progressive=True,
+                )
+            finally:
+                final_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return heic_to_jpg_template(
+            request=request,
+            error_message="The selected file is not a valid HEIC or HEIF image.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        return heic_to_jpg_template(
+            request=request,
+            error_message="The HEIC image could not be converted. Please try another image.",
+        )
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_name}.jpg"'
+        },
+    )
+
+@app.post("/webp-to-jpg", response_class=HTMLResponse)
+async def convert_webp_to_jpg(
+    request: Request,
+    image: UploadFile = File(...),
+    quality: int = Form(90),
+):
+    if quality < 60 or quality > 100:
+        return webp_to_jpg_template(
+            request=request,
+            error_message="Quality must be between 60 and 100.",
+        )
+
+    file_name = (image.filename or "").lower()
+
+    if not file_name.endswith(".webp"):
+        return webp_to_jpg_template(
+            request=request,
+            error_message="Please choose a WebP image.",
+        )
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return webp_to_jpg_template(
+            request=request,
+            error_message="Please choose a WebP image.",
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return webp_to_jpg_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as test_image:
+            test_image.verify()
+
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            if (source_image.format or "").upper() != "WEBP":
+                output_buffer.close()
+                return webp_to_jpg_template(
+                    request=request,
+                    error_message="The selected file is not a valid WebP image.",
+                )
+
+            if (
+                source_image.mode in ("RGBA", "LA")
+                or (
+                    source_image.mode == "P"
+                    and "transparency" in source_image.info
+                )
+            ):
+                final_image = add_white_background(source_image)
+            else:
+                final_image = source_image.convert("RGB")
+
+            try:
+                final_image.save(
+                    output_buffer,
+                    format="JPEG",
+                    quality=quality,
+                    optimize=True,
+                    progressive=True,
+                )
+            finally:
+                final_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return webp_to_jpg_template(
+            request=request,
+            error_message="The selected file is not a valid WebP image.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        return webp_to_jpg_template(
+            request=request,
+            error_message="The WebP image could not be converted. Please try another image.",
+        )
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_name}.jpg"'
+        },
+    )
+
+@app.post("/jpg-to-png", response_class=HTMLResponse)
+async def convert_jpg_to_png(
+    request: Request,
+    image: UploadFile = File(...),
+):
+    file_name = (image.filename or "").lower()
+
+    if not file_name.endswith((".jpg", ".jpeg")):
+        return jpg_to_png_template(
+            request=request,
+            error_message="Please choose a JPG or JPEG image.",
+        )
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return jpg_to_png_template(
+            request=request,
+            error_message="Please choose a JPG image.",
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return jpg_to_png_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as test_image:
+            test_image.verify()
+
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            if (source_image.format or "").upper() not in {"JPEG", "JPG"}:
+                output_buffer.close()
+                return jpg_to_png_template(
+                    request=request,
+                    error_message="The selected file is not a valid JPG image.",
+                )
+
+            final_image = prepare_image(source_image, "PNG")
+
+            try:
+                final_image.save(
+                    output_buffer,
+                    format="PNG",
+                    **get_save_options("PNG"),
+                )
+            finally:
+                final_image.close()
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return jpg_to_png_template(
+            request=request,
+            error_message="The selected file is not a valid JPG image.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        return jpg_to_png_template(
+            request=request,
+            error_message="The JPG image could not be converted. Please try another image.",
+        )
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_name}.png"'
+        },
+    )
+
+@app.post("/merge-images", response_class=HTMLResponse)
+async def merge_images(
+    request: Request,
+    images: list[UploadFile] = File(...),
+    direction: str = Form("vertical"),
+    spacing: int = Form(0),
+    background_color: str = Form("#ffffff"),
+    output_format: str = Form("PNG"),
+):
+    if not images or len(images) < 2:
+        return merge_images_template(
+            request=request,
+            error_message="Please choose at least two images.",
+        )
+
+    if len(images) > 10:
+        return merge_images_template(
+            request=request,
+            error_message="You can merge up to 10 images at a time.",
+        )
+
+    if direction not in {"vertical", "horizontal"}:
+        return merge_images_template(
+            request=request,
+            error_message="Please choose Vertical or Horizontal.",
+        )
+
+    if spacing < 0 or spacing > 100:
+        return merge_images_template(
+            request=request,
+            error_message="Spacing must be between 0 and 100 pixels.",
+        )
+
+    output_format = output_format.strip().upper()
+    if output_format not in {"PNG", "JPG"}:
+        return merge_images_template(
+            request=request,
+            error_message="Please choose PNG or JPG output.",
+        )
+
+    if not re.fullmatch(r"#[0-9A-Fa-f]{6}", background_color or ""):
+        background_color = "#ffffff"
+
+    loaded_images = []
+    prepared_images = []
+    merged_image = None
+    output_buffer = io.BytesIO()
+    total_size = 0
+
+    try:
+        for uploaded_image in images:
+            file_data = await uploaded_image.read(MAX_FILE_SIZE + 1)
+
+            if not file_data:
+                raise ValueError("empty")
+
+            if len(file_data) > MAX_FILE_SIZE:
+                raise OverflowError("single")
+
+            total_size += len(file_data)
+            if total_size > 80 * 1024 * 1024:
+                raise OverflowError("total")
+
+            with Image.open(io.BytesIO(file_data)) as test_image:
+                test_image.verify()
+
+            with Image.open(io.BytesIO(file_data)) as source_image:
+                source_image.seek(0)
+                source_image.load()
+                loaded_images.append(source_image.convert("RGBA"))
+
+        red = int(background_color[1:3], 16)
+        green = int(background_color[3:5], 16)
+        blue = int(background_color[5:7], 16)
+        background = (red, green, blue)
+
+        count = len(loaded_images)
+
+        if direction == "vertical":
+            target_width = min(
+                1600,
+                max(image.width for image in loaded_images),
+            )
+            prepared_images = [
+                resize_to_width(image, target_width)
+                for image in loaded_images
+            ]
+            canvas_width = target_width
+            canvas_height = (
+                sum(image.height for image in prepared_images)
+                + spacing * (count - 1)
+            )
+
+            if canvas_height > 20000:
+                raise ValueError("dimensions")
+
+            merged_image = Image.new(
+                "RGB",
+                (canvas_width, canvas_height),
+                background,
+            )
+
+            y = 0
+            for image in prepared_images:
+                x = (canvas_width - image.width) // 2
+                merged_image.paste(image, (x, y), image)
+                y += image.height + spacing
+
+        else:
+            target_height = min(
+                1200,
+                max(image.height for image in loaded_images),
+            )
+            prepared_images = [
+                resize_to_height(image, target_height)
+                for image in loaded_images
+            ]
+            canvas_width = (
+                sum(image.width for image in prepared_images)
+                + spacing * (count - 1)
+            )
+            canvas_height = target_height
+
+            if canvas_width > 20000:
+                raise ValueError("dimensions")
+
+            merged_image = Image.new(
+                "RGB",
+                (canvas_width, canvas_height),
+                background,
+            )
+
+            x = 0
+            for image in prepared_images:
+                y = (canvas_height - image.height) // 2
+                merged_image.paste(image, (x, y), image)
+                x += image.width + spacing
+
+        if output_format == "JPG":
+            extension = "jpg"
+            media_type = "image/jpeg"
+            merged_image.save(
+                output_buffer,
+                format="JPEG",
+                quality=95,
+                optimize=True,
+                progressive=True,
+            )
+        else:
+            extension = "png"
+            media_type = "image/png"
+            merged_image.save(
+                output_buffer,
+                format="PNG",
+                optimize=True,
+                compress_level=6,
+            )
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return merge_images_template(
+            request=request,
+            error_message="One of the selected files is not a valid image.",
+        )
+
+    except OverflowError as exc:
+        output_buffer.close()
+        message = (
+            "Each image must be 20 MB or smaller."
+            if str(exc) == "single"
+            else "Maximum total upload size is 80 MB."
+        )
+        return merge_images_template(
+            request=request,
+            error_message=message,
+        )
+
+    except ValueError as exc:
+        output_buffer.close()
+        message = (
+            "The merged image would be too large. Please use fewer or smaller images."
+            if str(exc) == "dimensions"
+            else "Please choose valid images."
+        )
+        return merge_images_template(
+            request=request,
+            error_message=message,
+        )
+
+    except Exception:
+        output_buffer.close()
+        return merge_images_template(
+            request=request,
+            error_message="The images could not be merged. Please try different images.",
+        )
+
+    finally:
+        if merged_image is not None:
+            merged_image.close()
+
+        for image in prepared_images:
+            image.close()
+
+        for image in loaded_images:
+            image.close()
+
+    output_buffer.seek(0)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="merged_images.{extension}"'
+            )
+        },
+    )
+
+@app.post("/add-text", response_class=HTMLResponse)
+async def add_text_to_image(
+    request: Request,
+    image: UploadFile = File(...),
+    text_value: str = Form(...),
+    position: str = Form("center"),
+    font_size: int = Form(8),
+    text_color: str = Form("#ffffff"),
+    opacity: int = Form(100),
+    outline: str | None = Form(None),
+    rotation: int = Form(0),
+):
+    text_value = text_value.strip()
+
+    if not text_value:
+        return add_text_template(
+            request=request,
+            error_message="Please enter some text.",
+        )
+
+    if len(text_value) > 150:
+        return add_text_template(
+            request=request,
+            error_message="Text must be 150 characters or less.",
+        )
+
+    valid_positions = {
+        "top_left",
+        "top_center",
+        "top_right",
+        "center_left",
+        "center",
+        "center_right",
+        "bottom_left",
+        "bottom_center",
+        "bottom_right",
+    }
+
+    if position not in valid_positions:
+        return add_text_template(
+            request=request,
+            error_message="Please choose a valid text position.",
+        )
+
+    if font_size < 2 or font_size > 30:
+        return add_text_template(
+            request=request,
+            error_message="Font size must be between 2 and 30.",
+        )
+
+    if opacity < 10 or opacity > 100:
+        return add_text_template(
+            request=request,
+            error_message="Opacity must be between 10 and 100.",
+        )
+
+    if rotation not in {-45, 0, 45}:
+        return add_text_template(
+            request=request,
+            error_message="Please choose a valid rotation.",
+        )
+
+    if not re.fullmatch(r"#[0-9A-Fa-f]{6}", text_color or ""):
+        text_color = "#ffffff"
+
+    file_data = await image.read(MAX_FILE_SIZE + 1)
+
+    if not file_data:
+        return add_text_template(
+            request=request,
+            error_message="Please choose an image.",
+        )
+
+    if len(file_data) > MAX_FILE_SIZE:
+        return add_text_template(
+            request=request,
+            error_message="The image is too large. Maximum file size is 20 MB.",
+        )
+
+    output_buffer = io.BytesIO()
+    working_image = None
+    text_layer = None
+    final_image = None
+
+    try:
+        with Image.open(io.BytesIO(file_data)) as test_image:
+            test_image.verify()
+
+        with Image.open(io.BytesIO(file_data)) as source_image:
+            source_image.seek(0)
+            source_image.load()
+
+            original_format = (source_image.format or "PNG").upper()
+            working_image = source_image.convert("RGBA")
+
+            image_width, image_height = working_image.size
+
+            actual_font_size = max(
+                12,
+                int(
+                    min(image_width, image_height)
+                    * (font_size / 100)
+                ),
+            )
+
+            font = load_watermark_font(actual_font_size)
+
+            red, green, blue = parse_hex_color(text_color)
+            alpha = int(255 * (opacity / 100))
+
+            outline_enabled = outline == "on"
+            stroke_width = (
+                max(1, actual_font_size // 20)
+                if outline_enabled
+                else 0
+            )
+            stroke_fill = (
+                (0, 0, 0, alpha)
+                if outline_enabled
+                else None
+            )
+
+            text_layer = create_text_watermark_layer(
+                text_value,
+                font,
+                (red, green, blue, alpha),
+                stroke_width,
+                stroke_fill,
+                rotation,
+            )
+
+            mark_width, mark_height = text_layer.size
+            margin = max(
+                10,
+                int(min(image_width, image_height) * 0.03),
+            )
+
+            positions = {
+                "top_left": (
+                    margin,
+                    margin,
+                ),
+                "top_center": (
+                    (image_width - mark_width) // 2,
+                    margin,
+                ),
+                "top_right": (
+                    image_width - mark_width - margin,
+                    margin,
+                ),
+                "center_left": (
+                    margin,
+                    (image_height - mark_height) // 2,
+                ),
+                "center": (
+                    (image_width - mark_width) // 2,
+                    (image_height - mark_height) // 2,
+                ),
+                "center_right": (
+                    image_width - mark_width - margin,
+                    (image_height - mark_height) // 2,
+                ),
+                "bottom_left": (
+                    margin,
+                    image_height - mark_height - margin,
+                ),
+                "bottom_center": (
+                    (image_width - mark_width) // 2,
+                    image_height - mark_height - margin,
+                ),
+                "bottom_right": (
+                    image_width - mark_width - margin,
+                    image_height - mark_height - margin,
+                ),
+            }
+
+            x, y = positions[position]
+
+            working_image.alpha_composite(
+                text_layer,
+                (
+                    max(0, x),
+                    max(0, y),
+                ),
+            )
+
+            if original_format == "JPEG":
+                final_image = add_white_background(
+                    working_image
+                )
+                extension = "jpg"
+                media_type = "image/jpeg"
+                save_format = "JPEG"
+                save_options = get_save_options("JPG")
+
+            elif original_format == "WEBP":
+                final_image = prepare_image(
+                    working_image,
+                    "WEBP",
+                )
+                extension = "webp"
+                media_type = "image/webp"
+                save_format = "WEBP"
+                save_options = get_save_options("WEBP")
+
+            else:
+                final_image = prepare_image(
+                    working_image,
+                    "PNG",
+                )
+                extension = "png"
+                media_type = "image/png"
+                save_format = "PNG"
+                save_options = get_save_options("PNG")
+
+            final_image.save(
+                output_buffer,
+                format=save_format,
+                **save_options,
+            )
+
+    except UnidentifiedImageError:
+        output_buffer.close()
+        return add_text_template(
+            request=request,
+            error_message="The selected file is not a valid image.",
+        )
+
+    except Exception:
+        output_buffer.close()
+        return add_text_template(
+            request=request,
+            error_message="The text could not be added. Please try another image.",
+        )
+
+    finally:
+        if final_image is not None:
+            final_image.close()
+
+        if text_layer is not None:
+            text_layer.close()
+
+        if working_image is not None:
+            working_image.close()
+
+    output_buffer.seek(0)
+    safe_name = clean_file_name(image.filename)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{safe_name}_text.{extension}"'
             )
         },
     )

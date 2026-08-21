@@ -44,12 +44,12 @@
 
     <meta
         name="description"
-        content="{% block description %}Free online image tools for converting, resizing, compressing, cropping, rotating, flipping, watermarking, converting images to PDF, picking HEX and RGB colors, and creating image collages quickly and easily.{% endblock %}"
+        content="{% block description %}Free online image tools for converting, resizing, compressing, cropping, rotating, flipping, watermarking, converting images to PDF, converting PDF pages to PNG or JPG images, converting HEIC and HEIF photos to JPG, converting WebP images to JPG, converting JPG and JPEG images to PNG, merging multiple images vertically or horizontally, adding custom text to images, picking HEX and RGB colors, and creating image collages quickly and easily.{% endblock %}"
     >
 
     <link
         rel="canonical"
-        href="{{ request.url }}"
+        href="{{ request.url.scheme }}://{{ request.url.netloc }}{{ request.url.path }}"
     >
 
     <meta
@@ -57,9 +57,49 @@
         content="index, follow"
     >
 
+    <meta
+        property="og:site_name"
+        content="ImageKitBox"
+    >
+
+    <meta
+        property="og:type"
+        content="website"
+    >
+
+    <meta
+        property="og:title"
+        content="ImageKitBox - Free Online Image Tools"
+    >
+
+    <meta
+        property="og:description"
+        content="Free online tools to convert, resize, compress, crop, watermark, merge and edit images, plus PDF and image format tools."
+    >
+
+    <meta
+        property="og:url"
+        content="{{ request.url.scheme }}://{{ request.url.netloc }}{{ request.url.path }}"
+    >
+
+    <meta
+        name="twitter:card"
+        content="summary"
+    >
+
+    <meta
+        name="twitter:title"
+        content="ImageKitBox - Free Online Image Tools"
+    >
+
+    <meta
+        name="twitter:description"
+        content="Free online tools to convert, resize, compress, crop, watermark, merge and edit images, plus PDF and image format tools."
+    >
+
     <link
         rel="stylesheet"
-        href="{{ url_for('static', path='/style.css') }}"
+        href="{{ url_for('static', path='/style.css') }}?v=16"
     >
 
 
@@ -106,43 +146,108 @@
                     </button>
 
 
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu categorized-menu">
 
-                        <a href="/converter">
-                            Image Converter
-                        </a>
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                Convert & Format
+                            </span>
 
-                        <a href="/resize">
-                            Image Resizer
-                        </a>
+                            <a href="/converter">
+                                Image Converter
+                            </a>
 
-                        <a href="/compressor">
-                            Image Compressor
-                        </a>
+                            <a href="/heic-to-jpg">
+                                HEIC to JPG
+                            </a>
 
-                        <a href="/cropper">
-                            Image Cropper
-                        </a>
+                            <a href="/webp-to-jpg">
+                                WebP to JPG
+                            </a>
 
-                        <a href="/rotate-flip">
-                            Rotate & Flip Image
-                        </a>
+                            <a href="/jpg-to-png">
+                                JPG to PNG
+                            </a>
+                        </div>
 
-                        <a href="/watermark">
-                            Image Watermark
-                        </a>
 
-                        <a href="/image-to-pdf">
-                            Image to PDF
-                        </a>
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                Resize & Optimize
+                            </span>
 
-                        <a href="/color-picker">
-                            Image Color Picker
-                        </a>
+                            <a href="/resize">
+                                Image Resizer
+                            </a>
 
-                        <a href="/collage">
-                            Image Collage Maker
-                        </a>
+                            <a href="/compressor">
+                                Image Compressor
+                            </a>
+                        </div>
+
+
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                Edit Images
+                            </span>
+
+                            <a href="/cropper">
+                                Image Cropper
+                            </a>
+
+                            <a href="/rotate-flip">
+                                Rotate & Flip Image
+                            </a>
+
+                            <a href="/watermark">
+                                Image Watermark
+                            </a>
+
+                            <a href="/add-text">
+                                Add Text to Image
+                            </a>
+                        </div>
+
+
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                Create & Combine
+                            </span>
+
+                            <a href="/collage">
+                                Image Collage Maker
+                            </a>
+
+                            <a href="/merge-images">
+                                Merge Images
+                            </a>
+                        </div>
+
+
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                PDF Tools
+                            </span>
+
+                            <a href="/image-to-pdf">
+                                Image to PDF
+                            </a>
+
+                            <a href="/pdf-to-images">
+                                PDF to Images
+                            </a>
+                        </div>
+
+
+                        <div class="dropdown-category">
+                            <span class="dropdown-category-title">
+                                Color Tools
+                            </span>
+
+                            <a href="/color-picker">
+                                Image Color Picker
+                            </a>
+                        </div>
 
                     </div>
 

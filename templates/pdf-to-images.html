@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free PDF to Images Converter - Convert PDF Pages to PNG or JPG
+{% endblock %}
+
+
+{% block description %}
+Convert PDF pages to PNG or JPG images online for free with ImageKitBox. Choose image format and quality, then download all converted pages in one ZIP file.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            PDF to Images
+        </h1>
+
+        <p>
+            Convert every page of a PDF
+            into PNG or JPG images
+            and download them in one ZIP file.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/pdf-to-images"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="pdf_file">
+                    Choose PDF File
+                </label>
+
+                <input
+                    type="file"
+                    id="pdf_file"
+                    name="pdf_file"
+                    accept="application/pdf,.pdf"
+                    required
+                >
+
+                <p id="selectedPdf">
+                    Maximum file size: 20 MB.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="output_format">
+                    Output Format
+                </label>
+
+                <select
+                    id="output_format"
+                    name="output_format"
+                >
+
+                    <option
+                        value="PNG"
+                        selected
+                    >
+                        PNG
+                    </option>
+
+                    <option value="JPG">
+                        JPG
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="dpi">
+                    Image Quality
+                </label>
+
+                <select
+                    id="dpi"
+                    name="dpi"
+                >
+
+                    <option value="100">
+                        Standard - 100 DPI
+                    </option>
+
+                    <option
+                        value="150"
+                        selected
+                    >
+                        Good - 150 DPI
+                    </option>
+
+                    <option value="200">
+                        High - 200 DPI
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Convert PDF & Download ZIP
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert PDF Pages to Images Online
+        </h2>
+
+        <p>
+            ImageKitBox PDF to Images converts
+            each page in your PDF document into
+            a separate image file.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            PNG or JPG Output
+        </h2>
+
+        <p>
+            Choose PNG when you want high quality
+            lossless images, or JPG when you prefer
+            smaller image files.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Choose Image Quality
+        </h2>
+
+        <p>
+            Select 100 DPI for standard quality,
+            150 DPI for a good balance between
+            quality and file size, or 200 DPI
+            for higher-resolution images.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Download All Pages in One ZIP
+        </h2>
+
+        <p>
+            After conversion, every PDF page
+            is saved as a separate image and
+            all images are packaged into one
+            ZIP file for easy downloading.
+        </p>
+
+        <p>
+            Maximum PDF size: 20 MB.
+            Maximum PDF length: 50 pages.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const pdfInput =
+        document.getElementById(
+            "pdf_file"
+        );
+
+    const selectedPdf =
+        document.getElementById(
+            "selectedPdf"
+        );
+
+
+    if (
+        pdfInput
+        && selectedPdf
+    ) {
+
+        pdfInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    pdfInput.files[0];
+
+                if (!file) {
+
+                    selectedPdf.textContent =
+                        "Maximum file size: 20 MB.";
+
+                    return;
+
+                }
+
+                selectedPdf.textContent =
+                    file.name;
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

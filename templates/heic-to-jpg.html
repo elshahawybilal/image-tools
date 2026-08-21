@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free HEIC to JPG Converter - Convert HEIC and HEIF Images Online
+{% endblock %}
+
+
+{% block description %}
+Convert HEIC and HEIF images to JPG online for free with ImageKitBox. Upload an iPhone HEIC photo, choose JPG quality, and download the converted image instantly.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            HEIC to JPG
+        </h1>
+
+        <p>
+            Convert HEIC and HEIF photos
+            to JPG quickly and easily.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/heic-to-jpg"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Choose HEIC or HEIF Image
+                </label>
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept=".heic,.heif,image/heic,image/heif"
+                    required
+                >
+
+                <p id="selectedFile">
+                    Maximum file size: 20 MB.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="quality">
+                    JPG Quality:
+                    <span id="qualityValue">
+                        90
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="quality"
+                    name="quality"
+                    min="60"
+                    max="100"
+                    value="90"
+                    step="1"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Convert to JPG & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert HEIC to JPG Online
+        </h2>
+
+        <p>
+            ImageKitBox HEIC to JPG Converter
+            lets you convert HEIC and HEIF images
+            into widely supported JPG files.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Great for iPhone Photos
+        </h2>
+
+        <p>
+            Many iPhone and iPad photos are saved
+            as HEIC files. Converting them to JPG
+            makes them easier to open, upload,
+            edit and share on more devices
+            and websites.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Choose Your JPG Quality
+        </h2>
+
+        <p>
+            Use a higher quality value when you
+            want better image detail, or reduce
+            the quality slightly when you want
+            a smaller JPG file.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Convert HEIC to JPG
+        </h2>
+
+        <p>
+            Choose a HEIC or HEIF image,
+            select your preferred JPG quality,
+            then click Convert to JPG & Download.
+        </p>
+
+        <p>
+            Maximum file size: 20 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imageInput =
+        document.getElementById(
+            "image"
+        );
+
+    const selectedFile =
+        document.getElementById(
+            "selectedFile"
+        );
+
+    const qualitySlider =
+        document.getElementById(
+            "quality"
+        );
+
+    const qualityValue =
+        document.getElementById(
+            "qualityValue"
+        );
+
+
+    if (
+        imageInput
+        && selectedFile
+    ) {
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    imageInput.files[0];
+
+                if (!file) {
+
+                    selectedFile.textContent =
+                        "Maximum file size: 20 MB.";
+
+                    return;
+
+                }
+
+                selectedFile.textContent =
+                    file.name;
+
+            }
+        );
+
+    }
+
+
+    if (
+        qualitySlider
+        && qualityValue
+    ) {
+
+        qualitySlider.addEventListener(
+            "input",
+            function () {
+
+                qualityValue.textContent =
+                    qualitySlider.value;
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

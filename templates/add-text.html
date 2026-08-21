@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Add Text to Image Online - Free Image Text Editor
+{% endblock %}
+
+
+{% block description %}
+Add text to images online for free with ImageKitBox. Customize text size, color, opacity, outline, rotation and position, then download your edited image instantly.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            Add Text to Image
+        </h1>
+
+        <p>
+            Add custom text to your image,
+            choose its style and position,
+            then download the result.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/add-text"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Choose Image
+                </label>
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    required
+                >
+
+                <p id="selectedFile">
+                    Maximum file size: 20 MB.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="text_value">
+                    Text
+                </label>
+
+                <input
+                    type="text"
+                    id="text_value"
+                    name="text_value"
+                    maxlength="150"
+                    placeholder="Enter your text"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="position">
+                    Text Position
+                </label>
+
+                <select
+                    id="position"
+                    name="position"
+                >
+
+                    <option value="top_left">
+                        Top Left
+                    </option>
+
+                    <option value="top_center">
+                        Top Center
+                    </option>
+
+                    <option value="top_right">
+                        Top Right
+                    </option>
+
+                    <option value="center_left">
+                        Center Left
+                    </option>
+
+                    <option
+                        value="center"
+                        selected
+                    >
+                        Center
+                    </option>
+
+                    <option value="center_right">
+                        Center Right
+                    </option>
+
+                    <option value="bottom_left">
+                        Bottom Left
+                    </option>
+
+                    <option value="bottom_center">
+                        Bottom Center
+                    </option>
+
+                    <option value="bottom_right">
+                        Bottom Right
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="font_size">
+                    Font Size:
+                    <span id="fontSizeValue">
+                        8%
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="font_size"
+                    name="font_size"
+                    min="2"
+                    max="30"
+                    value="8"
+                    step="1"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="text_color">
+                    Text Color
+                </label>
+
+                <input
+                    type="color"
+                    id="text_color"
+                    name="text_color"
+                    value="#ffffff"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="opacity">
+                    Opacity:
+                    <span id="opacityValue">
+                        100%
+                    </span>
+                </label>
+
+                <input
+                    type="range"
+                    id="opacity"
+                    name="opacity"
+                    min="10"
+                    max="100"
+                    value="100"
+                    step="5"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="rotation">
+                    Text Rotation
+                </label>
+
+                <select
+                    id="rotation"
+                    name="rotation"
+                >
+
+                    <option value="-45">
+                        -45°
+                    </option>
+
+                    <option
+                        value="0"
+                        selected
+                    >
+                        0°
+                    </option>
+
+                    <option value="45">
+                        45°
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="outline"
+                        value="on"
+                    >
+                    Add dark outline around text
+                </label>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Add Text & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Add Text to Images Online
+        </h2>
+
+        <p>
+            ImageKitBox lets you place custom
+            text on your images directly online
+            without installing image editing
+            software.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Customize Your Text
+        </h2>
+
+        <p>
+            Choose the text size, color,
+            opacity, position and rotation.
+            You can also add a dark outline
+            to make the text easier to read.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Nine Text Positions
+        </h2>
+
+        <p>
+            Place your text at the top,
+            center or bottom of the image,
+            with left, center and right
+            alignment options.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Add Text to an Image
+        </h2>
+
+        <p>
+            Choose an image, enter your text,
+            customize its appearance and position,
+            then click Add Text & Download.
+        </p>
+
+        <p>
+            Maximum file size: 20 MB.
+            Text can contain up to 150 characters.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imageInput =
+        document.getElementById("image");
+
+    const selectedFile =
+        document.getElementById(
+            "selectedFile"
+        );
+
+    const fontSizeSlider =
+        document.getElementById(
+            "font_size"
+        );
+
+    const fontSizeValue =
+        document.getElementById(
+            "fontSizeValue"
+        );
+
+    const opacitySlider =
+        document.getElementById(
+            "opacity"
+        );
+
+    const opacityValue =
+        document.getElementById(
+            "opacityValue"
+        );
+
+
+    if (imageInput && selectedFile) {
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    imageInput.files[0];
+
+                if (!file) {
+
+                    selectedFile.textContent =
+                        "Maximum file size: 20 MB.";
+
+                    return;
+
+                }
+
+                selectedFile.textContent =
+                    file.name;
+
+            }
+        );
+
+    }
+
+
+    if (
+        fontSizeSlider
+        && fontSizeValue
+    ) {
+
+        fontSizeSlider.addEventListener(
+            "input",
+            function () {
+
+                fontSizeValue.textContent =
+                    fontSizeSlider.value
+                    + "%";
+
+            }
+        );
+
+    }
+
+
+    if (
+        opacitySlider
+        && opacityValue
+    ) {
+
+        opacitySlider.addEventListener(
+            "input",
+            function () {
+
+                opacityValue.textContent =
+                    opacitySlider.value
+                    + "%";
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

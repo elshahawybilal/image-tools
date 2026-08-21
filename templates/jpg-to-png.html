@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Free JPG to PNG Converter - Convert JPEG Images to PNG Online
+{% endblock %}
+
+
+{% block description %}
+Convert JPG and JPEG images to PNG online for free with ImageKitBox. Upload your JPG image and download a high-quality PNG file instantly.
+{% endblock %}
+
+
+{% block content %}
+
+<main class="page-container">
+
+    <div class="back-home">
+        <a href="/">
+            ← Back to Home
+        </a>
+    </div>
+
+
+    <section class="hero">
+
+        <h1>
+            JPG to PNG
+        </h1>
+
+        <p>
+            Convert JPG and JPEG images
+            to high-quality PNG files
+            quickly and easily online.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-top"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+
+    <section class="tool-card">
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            action="/jpg-to-png"
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Choose JPG or JPEG Image
+                </label>
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept=".jpg,.jpeg,image/jpeg"
+                    required
+                >
+
+                <p id="selectedFile">
+                    Maximum file size: 20 MB.
+                </p>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Convert to PNG & Download
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Convert JPG to PNG Online
+        </h2>
+
+        <p>
+            ImageKitBox JPG to PNG Converter
+            lets you convert JPG and JPEG images
+            into PNG files directly online
+            without installing additional software.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            Why Convert JPG to PNG?
+        </h2>
+
+        <p>
+            PNG is a widely supported image format
+            that uses lossless compression.
+            Converting a JPG to PNG can be useful
+            when you need a PNG file for websites,
+            design tools, documents or other apps.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            High-Quality PNG Output
+        </h2>
+
+        <p>
+            Your JPG image is converted to PNG
+            without intentionally reducing its
+            dimensions or adding extra JPG
+            compression during conversion.
+        </p>
+
+    </section>
+
+
+    <section class="info-section">
+
+        <h2>
+            How to Convert JPG to PNG
+        </h2>
+
+        <p>
+            Choose a JPG or JPEG image,
+            click Convert to PNG & Download,
+            and your converted PNG file
+            will download automatically.
+        </p>
+
+        <p>
+            Maximum file size: 20 MB.
+        </p>
+
+    </section>
+
+
+    <section
+        class="ad-placeholder ad-placeholder-bottom"
+    >
+        <span>
+            Advertisement
+        </span>
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    const imageInput =
+        document.getElementById("image");
+
+    const selectedFile =
+        document.getElementById(
+            "selectedFile"
+        );
+
+
+    if (imageInput && selectedFile) {
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    imageInput.files[0];
+
+                if (!file) {
+
+                    selectedFile.textContent =
+                        "Maximum file size: 20 MB.";
+
+                    return;
+
+                }
+
+                selectedFile.textContent =
+                    file.name;
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}
